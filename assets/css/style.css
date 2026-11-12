@@ -1,13 +1,13 @@
-/* ========================================
-   GLOBAL STYLE
-======================================== */
+/* NewsPortal - CSS optimized. Original styling and responsive rules retained. */
 
 body {
   background: #f8fafc;
   color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* CARD GENERAL */
 .card {
   overflow: hidden;
 }
@@ -16,15 +16,10 @@ body {
   transition: transform .4s ease;
 }
 
-/* ========================================
-   HOMEPAGE
-======================================== */
-
 .news-container {
   max-width: 1200px;
 }
 
-/* SECTION TITLE */
 .section-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -37,7 +32,6 @@ body {
   font-size: 14px;
 }
 
-/* HERO NEWS */
 .hero-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -65,7 +59,6 @@ body {
   color: #0f172a;
 }
 
-/* NEWS CARD */
 .news-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -113,7 +106,6 @@ body {
   font-size: 12px;
 }
 
-/* CATEGORY LABEL */
 .category-label {
   display: inline-block;
   background: #eff6ff;
@@ -124,7 +116,6 @@ body {
   font-weight: 600;
 }
 
-/* READ MORE */
 .btn-read {
   color: #2563eb;
   font-size: 14px;
@@ -137,12 +128,10 @@ body {
   color: #1d4ed8;
 }
 
-/* CATEGORY SECTION */
 .category-section {
   padding-top: 15px;
 }
 
-/* EMPTY STATE */
 .empty-state {
   background: #ffffff;
   border: 1px dashed #cbd5e1;
@@ -151,10 +140,6 @@ body {
   text-align: center;
   color: #64748b;
 }
-
-/* ========================================
-   RESPONSIVE
-======================================== */
 
 @media (max-width: 767px) {
   .hero-image {
@@ -174,11 +159,6 @@ body {
     height: 200px;
   }
 }
-
-
-/* =========================
-   PUBLIC NAVBAR
-========================= */
 
 .main-navbar {
   background: #ffffff;
@@ -266,18 +246,12 @@ body {
   }
 }
 
-/* ========================================
-   DETAIL BERITA
-======================================== */
-
 .detail-wrapper {
   max-width: 1000px;
   width: 100%;
   margin: 45px auto 70px;
   padding: 0 20px;
 }
-
-/* BREADCRUMB */
 
 .breadcrumb-news {
   display: flex;
@@ -297,8 +271,6 @@ body {
 .breadcrumb-news a:hover {
   text-decoration: underline;
 }
-
-/* ARTIKEL */
 
 .article-container {
   background: #ffffff;
@@ -349,8 +321,6 @@ body {
   color: #cbd5e1;
 }
 
-/* GAMBAR ARTIKEL */
-
 .article-image-wrapper {
   width: 100%;
   margin-bottom: 30px;
@@ -365,8 +335,6 @@ body {
   max-height: 520px;
   object-fit: cover;
 }
-
-/* ISI ARTIKEL */
 
 .article-content {
   color: #334155;
@@ -420,8 +388,6 @@ body {
   border: 1px solid #e2e8f0;
 }
 
-/* FOOTER ARTIKEL */
-
 .article-footer {
   margin-top: 35px;
   padding-top: 25px;
@@ -440,8 +406,6 @@ body {
 .back-link:hover {
   color: #1d4ed8;
 }
-
-/* KOMENTAR */
 
 .comment-section {
   margin-top: 45px;
@@ -463,8 +427,6 @@ body {
   font-size: 14px;
   margin: 0;
 }
-
-/* FORM KOMENTAR */
 
 .comment-form-card {
   padding: 28px;
@@ -523,8 +485,6 @@ body {
   background: #1d4ed8;
   transform: translateY(-1px);
 }
-
-/* DAFTAR KOMENTAR */
 
 .comment-list {
   display: flex;
@@ -588,8 +548,6 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* KOMENTAR KOSONG */
-
 .empty-comments {
   padding: 35px 20px;
   border: 1px dashed #cbd5e1;
@@ -606,8 +564,6 @@ body {
   margin: 10px 0 0;
   font-size: 14px;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .detail-wrapper {
@@ -652,18 +608,13 @@ body {
   }
 }
 
-/* ========================================
-   HALAMAN KATEGORI
-======================================== */
-
 .category-page {
   max-width: 1200px;
   width: 100%;
   margin: 45px auto 70px;
   padding: 0 20px;
+  flex: 1 0 auto;
 }
-
-/* HEADER SEMUA KATEGORI */
 
 .category-page-header {
   margin-bottom: 35px;
@@ -694,8 +645,6 @@ body {
   font-size: 15px;
   margin: 0;
 }
-
-/* GRID SEMUA KATEGORI */
 
 .category-grid {
   display: grid;
@@ -756,8 +705,6 @@ body {
   gap: 12px;
 }
 
-/* HEADER DETAIL KATEGORI */
-
 .category-detail-header {
   display: flex;
   align-items: flex-end;
@@ -777,8 +724,6 @@ body {
 .category-back-link:hover {
   color: #1d4ed8;
 }
-
-/* PENCARIAN */
 
 .category-search {
   display: flex;
@@ -832,8 +777,6 @@ body {
   color: #dc2626;
 }
 
-/* INFORMASI HASIL */
-
 .category-result-info {
   margin-bottom: 20px;
 }
@@ -847,8 +790,6 @@ body {
 .category-result-info strong {
   color: #1e293b;
 }
-
-/* GRID ARTIKEL */
 
 .news-grid {
   display: grid;
@@ -971,8 +912,6 @@ body {
   color: #1d4ed8;
 }
 
-/* DATA KOSONG */
-
 .category-empty {
   grid-column: 1 / -1;
   padding: 45px 20px;
@@ -1002,8 +941,6 @@ body {
   font-weight: 600;
   text-decoration: none;
 }
-
-/* PAGINATION */
 
 .category-pagination {
   margin-top: 40px;
@@ -1040,8 +977,6 @@ body {
 .category-pagination .page-item.disabled .page-link {
   color: #94a3b8;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 992px) {
 
@@ -1100,18 +1035,12 @@ body {
   }
 }
 
-/* ========================================
-   HALAMAN TENTANG NEWS PORTAL
-======================================== */
-
 .about-page {
   max-width: 1200px;
   width: 100%;
   margin: 45px auto 70px;
   padding: 0 20px;
 }
-
-/* HERO */
 
 .about-hero {
   padding: 55px 35px;
@@ -1148,8 +1077,6 @@ body {
   line-height: 1.8;
 }
 
-/* PROFIL */
-
 .about-intro {
   max-width: 900px;
   margin-bottom: 45px;
@@ -1178,16 +1105,12 @@ body {
   font-weight: 500;
 }
 
-/* GRID CARD */
-
 .about-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
   margin-bottom: 25px;
 }
-
-/* CARD */
 
 .about-card {
   min-width: 0;
@@ -1230,8 +1153,6 @@ body {
   font-size: 21px;
 }
 
-/* INFORMASI PERUSAHAAN */
-
 .company-info-item {
   display: flex;
   justify-content: space-between;
@@ -1257,8 +1178,6 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* GOOGLE MAPS */
-
 .about-map {
   width: 100%;
   height: 350px;
@@ -1272,8 +1191,6 @@ body {
   width: 100%;
   height: 100%;
 }
-
-/* MEDIA SOSIAL */
 
 .about-list {
   display: flex;
@@ -1325,8 +1242,6 @@ body {
   font-weight: 600;
 }
 
-/* STRUKTUR REDAKSI */
-
 .editorial-item {
   display: flex;
   align-items: center;
@@ -1352,8 +1267,6 @@ body {
   font-size: 13px;
   font-weight: 700;
 }
-
-/* KEBIJAKAN PEMBERITAAN */
 
 .about-policy {
   display: flex;
@@ -1396,8 +1309,6 @@ body {
 .about-policy p:last-child {
   margin-bottom: 0;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .about-page {
@@ -1449,34 +1360,14 @@ body {
   }
 }
 
-/* ========================================
-   CATEGORY PAGE - STICKY FOOTER
-======================================== */
-
 html,
 body {
   min-height: 100%;
 }
 
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Konten halaman kategori */
-.category-page {
-  flex: 1 0 auto;
-}
-
-/* Footer copyright */
 footer {
   flex-shrink: 0;
 }
-
-/* ========================================
-   LOGIN PAGE
-======================================== */
 
 .login-page {
   min-height: 100vh;
@@ -1500,8 +1391,6 @@ footer {
   border-radius: 18px;
   box-shadow: 0 15px 40px rgba(15, 23, 42, 0.06);
 }
-
-/* BRAND */
 
 .login-brand {
   display: flex;
@@ -1531,8 +1420,6 @@ footer {
   font-size: 21px;
 }
 
-/* HEADING */
-
 .login-heading {
   margin-bottom: 28px;
   text-align: center;
@@ -1553,8 +1440,6 @@ footer {
   line-height: 1.7;
 }
 
-/* ALERT */
-
 .login-alert {
   display: flex;
   align-items: flex-start;
@@ -1572,8 +1457,6 @@ footer {
 .login-alert i {
   margin-top: 2px;
 }
-
-/* FORM */
 
 .login-form-group {
   margin-bottom: 21px;
@@ -1641,8 +1524,6 @@ footer {
   color: #2563eb;
 }
 
-/* BUTTON */
-
 .login-button {
   display: flex;
   align-items: center;
@@ -1670,8 +1551,6 @@ footer {
   font-size: 17px;
 }
 
-/* BACK LINK */
-
 .login-back {
   padding-top: 25px;
   margin-top: 25px;
@@ -1694,16 +1573,12 @@ footer {
   color: #2563eb;
 }
 
-/* COPYRIGHT */
-
 .login-copyright {
   margin-top: 25px;
   color: #94a3b8;
   font-size: 12px;
   text-align: center;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 480px) {
   .login-card {
@@ -1715,17 +1590,11 @@ footer {
   }
 }
 
-/* ========================================
-   ADMIN DASHBOARD - NEWS PORTAL
-======================================== */
-
 .admin-dashboard {
   width: 100%;
   padding: 30px;
   color: #1e293b;
 }
-
-/* HEADER */
 
 .dashboard-header {
   display: flex;
@@ -1770,8 +1639,6 @@ footer {
   font-size: 13px;
 }
 
-/* SECTION */
-
 .dashboard-section-heading {
   margin-bottom: 20px;
 }
@@ -1788,8 +1655,6 @@ footer {
   color: #64748b;
   font-size: 14px;
 }
-
-/* STATISTICS */
 
 .dashboard-stats {
   display: grid;
@@ -1814,8 +1679,6 @@ footer {
   border-color: #bfdbfe;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
 }
-
-/* ICON */
 
 .stat-icon {
   display: flex;
@@ -1848,8 +1711,6 @@ footer {
   color: #059669;
 }
 
-/* STAT INFORMATION */
-
 .stat-card-info {
   min-width: 0;
 }
@@ -1868,8 +1729,6 @@ footer {
   font-size: 13px;
   font-weight: 500;
 }
-
-/* INFORMATION */
 
 .dashboard-welcome {
   display: flex;
@@ -1909,8 +1768,6 @@ footer {
   line-height: 1.7;
 }
 
-/* RESPONSIVE */
-
 @media (max-width: 1200px) {
   .dashboard-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1947,10 +1804,6 @@ footer {
   }
 }
 
-/* ========================================
-   DASHBOARD ADMIN - 2 STATISTIK
-======================================== */
-
 .dashboard-stats-admin {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-width: 800px;
@@ -1963,17 +1816,11 @@ footer {
   }
 }
 
-/* ========================================
-   ADMIN SIDEBAR - NEWS PORTAL
-======================================== */
-
 .admin-layout {
   display: flex;
   min-height: 100vh;
   background: #f8fafc;
 }
-
-/* SIDEBAR */
 
 .admin-sidebar {
   display: flex;
@@ -1985,8 +1832,6 @@ footer {
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
 }
-
-/* BRAND */
 
 .sidebar-brand {
   display: flex;
@@ -2027,8 +1872,6 @@ footer {
   color: #94a3b8;
   font-size: 10px;
 }
-
-/* MENU */
 
 .sidebar-menu {
   padding-top: 28px;
@@ -2077,8 +1920,6 @@ footer {
   color: #2563eb;
   font-weight: 650;
 }
-
-/* SIDEBAR FOOTER */
 
 .sidebar-footer {
   margin-top: auto;
@@ -2150,16 +1991,12 @@ footer {
   color: #b91c1c;
 }
 
-/* MAIN CONTENT */
-
 .admin-content {
   flex: 1;
   min-width: 0;
   padding: 0;
   overflow-x: hidden;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .admin-sidebar {
@@ -2219,17 +2056,11 @@ footer {
   }
 }
 
-/* ========================================
-   ADMIN USER MANAGEMENT
-======================================== */
-
 .admin-page {
   width: 100%;
   padding: 30px;
   color: #1e293b;
 }
-
-/* PAGE HEADER */
 
 .admin-page-header {
   display: flex;
@@ -2261,8 +2092,6 @@ footer {
   color: #64748b;
   font-size: 14px;
 }
-
-/* BUTTONS */
 
 .admin-primary-button {
   display: inline-flex;
@@ -2300,8 +2129,6 @@ footer {
   background: #f8fafc;
 }
 
-/* NOTIFICATION */
-
 .admin-notification {
   display: flex;
   align-items: center;
@@ -2332,8 +2159,6 @@ footer {
   color: inherit;
   font-size: 13px;
 }
-
-/* USER SUMMARY */
 
 .user-summary-card {
   display: flex;
@@ -2372,8 +2197,6 @@ footer {
   font-weight: 750;
 }
 
-/* TABLE CARD */
-
 .admin-table-card {
   overflow: hidden;
   border: 1px solid #e2e8f0;
@@ -2402,17 +2225,6 @@ footer {
   color: #94a3b8;
   font-size: 12px;
 }
-
-.admin-table-count {
-  padding: 7px 11px;
-  border-radius: 7px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-/* DATA TABLE */
 
 .admin-data-table {
   margin: 0;
@@ -2450,8 +2262,6 @@ footer {
   font-size: 12px;
 }
 
-/* USER NAME */
-
 .user-name-cell {
   display: flex;
   align-items: center;
@@ -2478,8 +2288,6 @@ footer {
   color: #64748b !important;
 }
 
-/* ROLE BADGES */
-
 .user-role-badge {
   display: inline-flex;
   align-items: center;
@@ -2499,8 +2307,6 @@ footer {
   background: #eff6ff;
   color: #2563eb;
 }
-
-/* ACTION BUTTONS */
 
 .user-action-buttons {
   display: flex;
@@ -2543,8 +2349,6 @@ footer {
   color: #b91c1c;
 }
 
-/* EMPTY STATE */
-
 .user-empty-state {
   padding: 45px 15px;
   text-align: center;
@@ -2567,8 +2371,6 @@ footer {
   color: #94a3b8;
   font-size: 12px;
 }
-
-/* MODAL */
 
 .admin-user-modal .modal-content {
   overflow: hidden;
@@ -2605,8 +2407,6 @@ footer {
   padding: 17px 24px;
   border-top: 1px solid #f1f5f9;
 }
-
-/* FORM */
 
 .admin-form-group {
   margin-bottom: 19px;
@@ -2663,8 +2463,6 @@ footer {
   font-size: 13px;
 }
 
-/* RESPONSIVE */
-
 @media (max-width: 768px) {
   .admin-page {
     padding: 22px 16px;
@@ -2716,10 +2514,6 @@ footer {
   }
 }
 
-/* ========================================
-   ADMIN ARTIKEL
-======================================== */
-
 .article-page {
   padding: 30px;
 }
@@ -2740,8 +2534,6 @@ footer {
   background: #eff6ff;
   color: #2563eb;
 }
-
-/* Tabel artikel */
 
 .article-data-table {
   min-width: 950px;
@@ -2811,8 +2603,6 @@ footer {
   white-space: nowrap;
 }
 
-/* Jumlah artikel */
-
 .admin-table-count {
   padding: 7px 12px;
   background: #eff6ff;
@@ -2822,8 +2612,6 @@ footer {
   font-weight: 600;
   white-space: nowrap;
 }
-
-/* Responsif */
 
 @media (max-width: 768px) {
   .article-page {
@@ -2840,10 +2628,6 @@ footer {
     max-width: 100%;
   }
 }
-
-/* ========================================
-   FORM TAMBAH ARTIKEL
-======================================== */
 
 .article-form-page {
   padding: 30px;
@@ -3013,10 +2797,6 @@ footer {
   }
 }
 
-/* ========================================
-   EDIT ARTIKEL
-======================================== */
-
 .article-current-thumbnail {
   display: inline-block;
   padding: 10px;
@@ -3056,14 +2836,6 @@ footer {
   color: #475569;
   font-size: 13px;
   font-weight: 600;
-}
-
-/* =================================
-   ADMIN KATEGORI
-================================= */
-
-.category-page {
-  width: 100%;
 }
 
 .category-summary-card {
@@ -3160,10 +2932,6 @@ footer {
   display: inline-flex;
   margin: 0;
 }
-
-/* =================================
-   FORM TAMBAH KATEGORI
-================================= */
 
 .category-form-page {
   width: 100%;
