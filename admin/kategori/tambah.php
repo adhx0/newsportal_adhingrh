@@ -1,13 +1,15 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // VALIDASI LOGIN
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
 
 // FUNGSI ESCAPE OUTPUT
 function e($value)
@@ -42,9 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CEK KATEGORI DUPLIKAT
     $cek = $koneksi->prepare(
       "SELECT id
-             FROM kategori
-             WHERE nama_kategori ILIKE :nama
-             LIMIT 1"
+       FROM kategori
+       WHERE nama_kategori = :nama
+       LIMIT 1"
     );
 
     $cek->execute([
@@ -58,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // SIMPAN KATEGORI
     $simpan = $koneksi->prepare(
       "INSERT INTO kategori (nama_kategori)
-             VALUES (:nama_kategori)"
+       VALUES (:nama_kategori)"
     );
 
     $simpan->execute([

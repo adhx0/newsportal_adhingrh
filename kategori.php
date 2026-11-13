@@ -1,6 +1,7 @@
 <?php
 
-include "config/koneksi.php";
+require_once __DIR__ . "/config/base_url.php";
+require_once __DIR__ . "/config/koneksi.php";
 
 // FUNCTION ESCAPE HTML
 function e($value)
@@ -25,8 +26,8 @@ if (!$id_kategori || $id_kategori < 1) {
 
   $daftar_kategori = $stmt_kategori->fetchAll(PDO::FETCH_ASSOC);
 
-  include "includes/header.php";
-  include "includes/navbar.php";
+  include __DIR__ . "/includes/header.php";
+  include __DIR__ . "/includes/navbar.php";
 ?>
 
   <main class="category-page">
@@ -63,7 +64,7 @@ if (!$id_kategori || $id_kategori < 1) {
               </h2>
 
               <a
-                href="kategori.php?id=<?= (int)$row['id']; ?>"
+                href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$row['id']; ?>"
                 class="category-card-link">
 
                 Lihat Artikel
@@ -91,7 +92,7 @@ if (!$id_kategori || $id_kategori < 1) {
   </main>
 
 <?php
-  include "includes/footer.php";
+  include __DIR__ . "/includes/footer.php";
   exit;
 }
 
@@ -122,9 +123,9 @@ $offset = ($page - 1) * $limit;
 // HITUNG TOTAL ARTIKEL
 $stmt_total = $koneksi->prepare(
   "SELECT COUNT(*)
-     FROM artikel
-     WHERE kategori_id = :kategori_id
-     AND judul ILIKE :keyword"
+   FROM artikel
+   WHERE kategori_id = :kategori_id
+   AND judul LIKE :keyword"
 );
 
 $stmt_total->execute([
@@ -145,17 +146,17 @@ if ($total_page > 0 && $page > $total_page) {
 // AMBIL DATA ARTIKEL
 $stmt_artikel = $koneksi->prepare(
   "SELECT artikel.*,
-            kategori.nama_kategori,
-            users.nama
-     FROM artikel
-     LEFT JOIN kategori
-        ON artikel.kategori_id = kategori.id
-     LEFT JOIN users
-        ON artikel.user_id = users.id
-     WHERE artikel.kategori_id = :kategori_id
-     AND artikel.judul ILIKE :keyword
-     ORDER BY artikel.id DESC
-     LIMIT :limit OFFSET :offset"
+          kategori.nama_kategori,
+          users.nama
+   FROM artikel
+   LEFT JOIN kategori
+      ON artikel.kategori_id = kategori.id
+   LEFT JOIN users
+      ON artikel.user_id = users.id
+   WHERE artikel.kategori_id = :kategori_id
+   AND artikel.judul LIKE :keyword
+   ORDER BY artikel.id DESC
+   LIMIT :limit OFFSET :offset"
 );
 
 $stmt_artikel->bindValue(':kategori_id', $id_kategori, PDO::PARAM_INT);
@@ -167,17 +168,17 @@ $stmt_artikel->execute();
 
 $daftar_artikel = $stmt_artikel->fetchAll(PDO::FETCH_ASSOC);
 
-include "includes/header.php";
-include "includes/navbar.php";
+include __DIR__ . "/includes/header.php";
+include __DIR__ . "/includes/navbar.php";
 ?>
 
 <main class="category-page">
 
   <!-- BREADCRUMB -->
   <div class="breadcrumb-news">
-    <a href="index.php">Beranda</a>
+    <a href="<?= BASE_URL ?>/index.php">Beranda</a>
     <span>/</span>
-    <a href="kategori.php">Kategori</a>
+    <a href="<?= BASE_URL ?>/kategori.php">Kategori</a>
     <span>/</span>
     <span><?= e($kategori['nama_kategori']); ?></span>
   </div>
@@ -195,7 +196,7 @@ include "includes/navbar.php";
       </p>
     </div>
 
-    <a href="kategori.php" class="category-back-link">
+    <a href="<?= BASE_URL ?>/kategori.php" class="category-back-link">
       &larr; Semua Kategori
     </a>
 
@@ -222,7 +223,7 @@ include "includes/navbar.php";
 
     <?php if ($keyword !== '') : ?>
       <a
-        href="kategori.php?id=<?= (int)$id_kategori; ?>"
+        href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$id_kategori; ?>"
         class="category-reset-search">
         Reset
       </a>
@@ -253,13 +254,13 @@ include "includes/navbar.php";
         <article class="news-card">
 
           <a
-            href="detail.php?id=<?= (int)$row['id']; ?>"
+            href="<?= BASE_URL ?>/detail.php?id=<?= (int)$row['id']; ?>"
             class="news-image-link">
 
             <?php if (!empty($row['thumbnail'])) : ?>
 
               <img
-                src="uploads/<?= e($row['thumbnail']); ?>"
+                src="<?= BASE_URL ?>/uploads/<?= rawurlencode(basename($row['thumbnail'])); ?>"
                 class="news-image"
                 alt="<?= e($row['judul']); ?>">
 
@@ -280,7 +281,7 @@ include "includes/navbar.php";
             </span>
 
             <h2 class="news-title">
-              <a href="detail.php?id=<?= (int)$row['id']; ?>">
+              <a href="<?= BASE_URL ?>/detail.php?id=<?= (int)$row['id']; ?>">
                 <?= e($row['judul']); ?>
               </a>
             </h2>
@@ -304,7 +305,7 @@ include "includes/navbar.php";
             </div>
 
             <a
-              href="detail.php?id=<?= (int)$row['id']; ?>"
+              href="<?= BASE_URL ?>/detail.php?id=<?= (int)$row['id']; ?>"
               class="btn-read">
               Baca Selengkapnya &rarr;
             </a>
@@ -325,7 +326,7 @@ include "includes/navbar.php";
         </p>
 
         <?php if ($keyword !== '') : ?>
-          <a href="kategori.php?id=<?= (int)$id_kategori; ?>">
+          <a href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$id_kategori; ?>">
             Lihat semua artikel
           </a>
         <?php endif; ?>
@@ -347,7 +348,7 @@ include "includes/navbar.php";
           <li class="page-item">
             <a
               class="page-link"
-              href="?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $page - 1; ?>">
+              href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $page - 1; ?>">
               &laquo; Sebelumnya
             </a>
           </li>
@@ -360,7 +361,7 @@ include "includes/navbar.php";
 
             <a
               class="page-link"
-              href="?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $i; ?>">
+              href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $i; ?>">
               <?= $i; ?>
             </a>
 
@@ -373,7 +374,7 @@ include "includes/navbar.php";
           <li class="page-item">
             <a
               class="page-link"
-              href="?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $page + 1; ?>">
+              href="<?= BASE_URL ?>/kategori.php?id=<?= (int)$id_kategori; ?>&keyword=<?= urlencode($keyword); ?>&page=<?= $page + 1; ?>">
               Selanjutnya &raquo;
             </a>
           </li>
@@ -388,4 +389,4 @@ include "includes/navbar.php";
 
 </main>
 
-<?php include "includes/footer.php"; ?>
+<?php include __DIR__ . "/includes/footer.php"; ?>

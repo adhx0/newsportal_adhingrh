@@ -1,13 +1,15 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // Validasi login
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
 
 // Fungsi escape output
 function e($value)
@@ -157,7 +159,7 @@ include "../sidebar.php";
                   <?php if (!empty($row['thumbnail'])): ?>
 
                     <img
-                      src="../../uploads/<?= rawurlencode(basename($row['thumbnail'])); ?>"
+                      src="<?= BASE_URL ?>/uploads/<?= rawurlencode(basename($row['thumbnail'])); ?>"
                       class="article-thumbnail"
                       alt="Thumbnail artikel"
                       loading="lazy">

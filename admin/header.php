@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../config/base_url.php';
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -26,7 +29,7 @@
 
   <!-- Custom CSS -->
   <link
-    href="/newsportal/assets/css/style.css?v=3"
+    href="<?= BASE_URL ?>/assets/css/style.css?v=3"
     rel="stylesheet">
 </head>
 

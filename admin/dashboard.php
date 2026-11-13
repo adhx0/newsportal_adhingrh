@@ -1,17 +1,19 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../config/base_url.php';
+
 if (!isset($_SESSION['role'])) {
-  header("Location: ../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: index.php");
+  header("Location: " . BASE_URL . "/admin/index.php");
   exit;
 }
 
-require_once "../config/koneksi.php";
+require_once __DIR__ . '/../config/koneksi.php';
 
 $totalArtikel = $koneksi->query(
   "SELECT COUNT(*) FROM artikel"

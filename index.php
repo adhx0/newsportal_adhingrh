@@ -1,6 +1,7 @@
 <?php
 
-include "config/koneksi.php";
+require_once __DIR__ . "/config/base_url.php";
+require_once __DIR__ . "/config/koneksi.php";
 
 /* FUNGSI ESCAPE OUTPUT */
 function e($value)
@@ -100,8 +101,8 @@ $query_kategori = $koneksi->query(
      ORDER BY nama_kategori ASC"
 );
 
-include "includes/header.php";
-include "includes/navbar.php";
+include __DIR__ . "/includes/header.php";
+include __DIR__ . "/includes/navbar.php";
 
 ?>
 
@@ -127,7 +128,7 @@ include "includes/navbar.php";
 
           <div class="col-lg-6">
             <img
-              src="uploads/<?= e(basename($hero['thumbnail'] ?? '')); ?>"
+              src="<?= BASE_URL ?>/uploads/<?= e(basename($hero['thumbnail'] ?? '')); ?>"
               class="hero-image"
               alt="<?= e($hero['judul']); ?>">
           </div>
@@ -207,7 +208,7 @@ include "includes/navbar.php";
           <article class="news-card h-100">
 
             <img
-              src="uploads/<?= e(basename($row['thumbnail'] ?? '')); ?>"
+              src="<?= BASE_URL ?>/uploads/<?= e(basename($row['thumbnail'] ?? '')); ?>"
               class="news-image"
               alt="<?= e($row['judul']); ?>">
 
@@ -329,7 +330,7 @@ include "includes/navbar.php";
               <article class="news-card h-100">
 
                 <img
-                  src="uploads/<?= e(basename($a['thumbnail'] ?? '')); ?>"
+                  src="<?= BASE_URL ?>/uploads/<?= e(basename($a['thumbnail'] ?? '')); ?>"
                   class="news-image"
                   alt="<?= e($a['judul']); ?>">
 
@@ -375,4 +376,4 @@ include "includes/navbar.php";
 
 </main>
 
-<?php include "includes/footer.php"; ?>
+<?php include __DIR__ . "/includes/footer.php"; ?>

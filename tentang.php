@@ -1,7 +1,11 @@
 <?php
-include "config/koneksi.php";
-include "includes/header.php";
-include "includes/navbar.php";
+
+require_once __DIR__ . "/config/base_url.php";
+require_once __DIR__ . "/config/koneksi.php";
+
+include __DIR__ . "/includes/header.php";
+include __DIR__ . "/includes/navbar.php";
+
 ?>
 
 <main class="about-page">
@@ -74,7 +78,7 @@ include "includes/navbar.php";
 
         <div class="company-info-item">
           <span>Alamat</span>
-          <strong>Belum tersedia</strong>
+          <strong>Karangroto, Genuk, Kota Semarang</strong>
         </div>
 
         <div class="company-info-item">
@@ -282,4 +286,4 @@ include "includes/navbar.php";
 
 </main>
 
-<?php include "includes/footer.php"; ?>
+<?php include __DIR__ . "/includes/footer.php"; ?>

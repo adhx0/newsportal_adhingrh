@@ -2,19 +2,24 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../config/base_url.php';
+
 // Validasi login
 if (!isset($_SESSION['role'])) {
-  header("Location: ../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
 // Hanya Super Admin yang boleh menambahkan user
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: index.php");
+  header("Location: " . BASE_URL . "/admin/index.php");
   exit;
 }
 
-require_once "../config/koneksi.php";
+require_once __DIR__ . '/../config/koneksi.php';
+
+// URL halaman pengelolaan user
+$userUrl = BASE_URL . '/admin/user.php';
 
 // Ambil input
 $nama = trim($_POST['nama'] ?? '');
@@ -29,19 +34,19 @@ if (
   $passwordInput === '' ||
   $role === ''
 ) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
 // Validasi email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
 // Validasi role
 if (!in_array($role, ['admin', 'super_admin', 'user'], true)) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
@@ -56,7 +61,7 @@ try {
   // Simpan pengguna
   $query = $koneksi->prepare(
     "INSERT INTO users (nama, email, password, role)
-     VALUES (:nama, :email, :password, :role)"
+    VALUES (:nama, :email, :password, :role)"
   );
 
   $query->execute([
@@ -66,7 +71,7 @@ try {
     ':role' => $role
   ]);
 
-  header("Location: user.php?pesan=tambah");
+  header("Location: " . $userUrl . "?pesan=tambah");
   exit;
 } catch (PDOException $e) {
 
@@ -75,6 +80,6 @@ try {
     "Gagal menambahkan pengguna: " . $e->getMessage()
   );
 
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }

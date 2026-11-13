@@ -2,19 +2,24 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../config/base_url.php';
+
 // Validasi login
 if (!isset($_SESSION['role'])) {
-  header("Location: ../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
 // Hanya Super Admin yang boleh mengedit user
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: index.php");
+  header("Location: " . BASE_URL . "/admin/index.php");
   exit;
 }
 
-require_once "../config/koneksi.php";
+require_once __DIR__ . '/../config/koneksi.php';
+
+// URL halaman pengelolaan user
+$userUrl = BASE_URL . '/admin/user.php';
 
 // Ambil input
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
@@ -30,19 +35,19 @@ if (
   $email === '' ||
   $role === ''
 ) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
 // Validasi format email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
 // Validasi role
 if (!in_array($role, ['admin', 'super_admin', 'user'], true)) {
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }
 
@@ -64,7 +69,7 @@ try {
     ':id' => $id
   ]);
 
-  header("Location: user.php?pesan=edit");
+  header("Location: " . $userUrl . "?pesan=edit");
   exit;
 } catch (PDOException $e) {
 
@@ -72,6 +77,6 @@ try {
     "Gagal memperbarui pengguna: " . $e->getMessage()
   );
 
-  header("Location: user.php?pesan=gagal");
+  header("Location: " . $userUrl . "?pesan=gagal");
   exit;
 }

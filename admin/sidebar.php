@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/base_url.php';
+
 $currentPage = basename($_SERVER['PHP_SELF']);
 $currentPath = $_SERVER['PHP_SELF'];
 
@@ -10,8 +12,8 @@ $isUser = $role === 'user';
 
 // URL Dashboard
 $dashboardUrl = $isSuperAdmin
-  ? '/newsportal/admin/dashboard.php'
-  : '/newsportal/admin/index.php';
+  ? BASE_URL . '/admin/dashboard.php'
+  : BASE_URL . '/admin/index.php';
 
 // Status menu Dashboard
 $dashboardActive = (
@@ -70,7 +72,7 @@ if ($isSuperAdmin) {
         <!-- KELOLA USER -->
         <?php if ($isSuperAdmin) : ?>
           <li class="nav-item">
-            <a href="/newsportal/admin/user.php"
+            <a href="<?= BASE_URL ?>/admin/user.php"
               class="sidebar-link <?= $currentPage === 'user.php' ? 'active' : ''; ?>">
 
               <i class="bi bi-people"></i>
@@ -82,7 +84,7 @@ if ($isSuperAdmin) {
         <!-- KATEGORI -->
         <?php if ($isSuperAdmin || $isAdmin) : ?>
           <li class="nav-item">
-            <a href="/newsportal/admin/kategori/index.php"
+            <a href="<?= BASE_URL ?>/admin/kategori/index.php"
               class="sidebar-link <?= strpos($currentPath, '/kategori/') !== false ? 'active' : ''; ?>">
 
               <i class="bi bi-folder"></i>
@@ -93,7 +95,7 @@ if ($isSuperAdmin) {
 
         <!-- ARTIKEL -->
         <li class="nav-item">
-          <a href="/newsportal/admin/artikel/index.php"
+          <a href="<?= BASE_URL ?>/admin/artikel/index.php"
             class="sidebar-link <?= strpos($currentPath, '/artikel/') !== false ? 'active' : ''; ?>">
 
             <i class="bi bi-file-earmark-text"></i>
@@ -123,7 +125,7 @@ if ($isSuperAdmin) {
         </div>
       </div>
 
-      <a href="/newsportal/admin/logout.php" class="sidebar-logout">
+      <a href="<?= BASE_URL ?>/admin/logout.php" class="sidebar-logout">
         <i class="bi bi-box-arrow-right"></i>
         <span>Logout</span>
       </a>

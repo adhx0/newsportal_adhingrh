@@ -1,13 +1,15 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // Validasi login
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
 
 // Fungsi escape output
 function e($value)
@@ -125,7 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       bin2hex(random_bytes(16)) .
       '.' . $allowedTypes[$mime];
 
-    $folderUpload = "../../uploads/";
+    // Lokasi folder uploads di root proyek
+    $folderUpload = __DIR__ . '/../../uploads/';
 
     if (!is_dir($folderUpload) || !is_writable($folderUpload)) {
       throw new Exception("Folder uploads tidak tersedia atau tidak dapat ditulis.");
@@ -168,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       ':user_id'     => $user_id
     ]);
 
-    header("Location: index.php?pesan=tambah");
+    header("Location: " . BASE_URL . "/admin/artikel/index.php?pesan=tambah");
     exit;
   } catch (Throwable $e) {
 

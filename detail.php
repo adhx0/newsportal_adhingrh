@@ -1,6 +1,7 @@
 <?php
 
-include "config/koneksi.php";
+require_once __DIR__ . "/config/base_url.php";
+require_once __DIR__ . "/config/koneksi.php";
 
 // VALIDASI ID ARTIKEL
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -96,8 +97,8 @@ $stmt_komentar->execute([':artikel_id' => $id]);
 
 $daftar_komentar = $stmt_komentar->fetchAll(PDO::FETCH_ASSOC);
 
-include "includes/header.php";
-include "includes/navbar.php";
+include __DIR__ . "/includes/header.php";
+include __DIR__ . "/includes/navbar.php";
 
 ?>
 
@@ -105,7 +106,7 @@ include "includes/navbar.php";
 
   <!-- BREADCRUMB -->
   <div class="breadcrumb-news">
-    <a href="index.php">Beranda</a>
+    <a href="<?= BASE_URL ?>/index.php">Beranda</a>
     <span>/</span>
     <span>Detail Berita</span>
   </div>
@@ -143,7 +144,7 @@ include "includes/navbar.php";
     <?php if (!empty($data['thumbnail'])) : ?>
       <div class="article-image-wrapper">
         <img
-          src="uploads/<?= e($data['thumbnail']); ?>"
+          src="<?= BASE_URL ?>/uploads/<?= rawurlencode(basename($data['thumbnail'])); ?>"
           class="article-image"
           alt="<?= e($data['judul']); ?>">
       </div>
@@ -156,7 +157,7 @@ include "includes/navbar.php";
 
     <!-- TOMBOL KEMBALI -->
     <div class="article-footer">
-      <a href="index.php" class="back-link">
+      <a href="<?= BASE_URL ?>/index.php" class="back-link">
         <i class="bi bi-arrow-left"></i>
         Kembali ke Beranda
       </a>
@@ -291,4 +292,4 @@ include "includes/navbar.php";
 
 </main>
 
-<?php include "includes/footer.php"; ?>
+<?php include __DIR__ . "/includes/footer.php"; ?>

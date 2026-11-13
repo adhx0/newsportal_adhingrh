@@ -1,14 +1,15 @@
+
 <?php
 
-$host = "aws-1-ap-southeast-2.pooler.supabase.com";
-$port = "5432";
-$db   = "postgres";
-$user = "postgres.awxfqgkjbmkwnlorjqqu";
-$pass = "newsportal_db1234";
+$host = "localhost";
+$port = "3306";
+$db   = "newsportal_db";
+$user = "root";
+$pass = "";
 
 try {
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$db;sslmode=require";
+    $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
 
     $koneksi = new PDO($dsn, $user, $pass);
 

@@ -1,13 +1,15 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // VALIDASI LOGIN
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
 
 // FUNGSI ESCAPE OUTPUT
 function e($value)
@@ -19,19 +21,22 @@ function e($value)
   );
 }
 
+// URL HALAMAN KATEGORI
+$kategoriUrl = BASE_URL . '/admin/kategori/index.php';
+
 // VALIDASI ID KATEGORI
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-  header("Location: index.php?pesan=id_tidak_valid");
+  header("Location: " . $kategoriUrl . "?pesan=id_tidak_valid");
   exit;
 }
 
 // AMBIL DATA KATEGORI
 $query = $koneksi->prepare(
   "SELECT id, nama_kategori
-     FROM kategori
-     WHERE id = :id"
+   FROM kategori
+   WHERE id = :id"
 );
 
 $query->execute([
@@ -42,7 +47,7 @@ $data = $query->fetch(PDO::FETCH_ASSOC);
 
 // CEK KATEGORI
 if (!$data) {
-  header("Location: index.php?pesan=tidak_ditemukan");
+  header("Location: " . $kategoriUrl . "?pesan=tidak_ditemukan");
   exit;
 }
 
@@ -68,10 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CEK DUPLIKAT, KECUALI KATEGORI YANG SEDANG DIEDIT
     $cek = $koneksi->prepare(
       "SELECT id
-             FROM kategori
-             WHERE nama_kategori ILIKE :nama
-             AND id <> :id
-             LIMIT 1"
+       FROM kategori
+       WHERE nama_kategori = :nama
+       AND id <> :id
+       LIMIT 1"
     );
 
     $cek->execute([
@@ -86,8 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // UPDATE DATA KATEGORI
     $update = $koneksi->prepare(
       "UPDATE kategori
-             SET nama_kategori = :nama
-             WHERE id = :id"
+       SET nama_kategori = :nama
+       WHERE id = :id"
     );
 
     $update->execute([
@@ -95,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       ':id' => $id
     ]);
 
-    header("Location: index.php?pesan=update");
+    header("Location: " . $kategoriUrl . "?pesan=update");
     exit;
   } catch (PDOException $e) {
 

@@ -1,13 +1,15 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // Validasi login
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
 
 // Fungsi escape output
 function e($value)
@@ -19,11 +21,17 @@ function e($value)
   );
 }
 
+// URL halaman artikel
+$artikelUrl = BASE_URL . '/admin/artikel/index.php';
+
+// Lokasi folder uploads
+$folderUpload = __DIR__ . '/../../uploads/';
+
 // Validasi ID artikel
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-  header("Location: index.php?pesan=id_tidak_valid");
+  header("Location: " . $artikelUrl . "?pesan=id_tidak_valid");
   exit;
 }
 
@@ -37,7 +45,7 @@ $stmt->execute([':id' => $id]);
 $artikel = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$artikel) {
-  header("Location: index.php?pesan=tidak_ditemukan");
+  header("Location: " . $artikelUrl . "?pesan=tidak_ditemukan");
   exit;
 }
 
@@ -141,8 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
 
       // Pastikan folder upload tersedia
-      $folderUpload = "../../uploads/";
-
       if (!is_dir($folderUpload) || !is_writable($folderUpload)) {
         throw new Exception("Folder uploads tidak tersedia atau tidak dapat ditulis.");
       }
@@ -184,14 +190,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $gambarBaru !== $gambarLama &&
       !empty($gambarLama)
     ) {
-      $fileLama = "../../uploads/" . basename($gambarLama);
+      $fileLama = $folderUpload . basename($gambarLama);
 
       if (is_file($fileLama)) {
         unlink($fileLama);
       }
     }
 
-    header("Location: index.php?pesan=edit");
+    header("Location: " . $artikelUrl . "?pesan=edit");
     exit;
   } catch (Throwable $e) {
 
@@ -327,7 +333,7 @@ include "../sidebar.php";
 
             <div class="article-current-thumbnail">
               <img
-                src="../../uploads/<?= rawurlencode(basename($artikel['thumbnail'])); ?>"
+                src="<?= BASE_URL ?>/uploads/<?= rawurlencode(basename($artikel['thumbnail'])); ?>"
                 alt="Thumbnail artikel saat ini">
             </div>
 

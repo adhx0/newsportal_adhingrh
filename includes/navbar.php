@@ -1,11 +1,13 @@
 <?php
+require_once __DIR__ . '/../config/base_url.php';
+
 $halamanAktif = basename($_SERVER['PHP_SELF'] ?? '');
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-light main-navbar sticky-top">
   <div class="container">
 
-    <a class="navbar-brand" href="/newsportal/index.php">
+    <a class="navbar-brand" href="<?= BASE_URL ?>/index.php">
       <span class="brand-icon">N</span>
       <span>NEWS PORTAL</span>
     </a>
@@ -28,7 +30,7 @@ $halamanAktif = basename($_SERVER['PHP_SELF'] ?? '');
         <li class="nav-item">
           <a
             class="nav-link <?= $halamanAktif === 'index.php' ? 'active' : ''; ?>"
-            href="/newsportal/index.php">
+            href="<?= BASE_URL ?>/index.php">
             Home
           </a>
         </li>
@@ -36,7 +38,7 @@ $halamanAktif = basename($_SERVER['PHP_SELF'] ?? '');
         <li class="nav-item">
           <a
             class="nav-link <?= $halamanAktif === 'kategori.php' ? 'active' : ''; ?>"
-            href="/newsportal/kategori.php">
+            href="<?= BASE_URL ?>/kategori.php">
             Kategori
           </a>
         </li>
@@ -44,13 +46,13 @@ $halamanAktif = basename($_SERVER['PHP_SELF'] ?? '');
         <li class="nav-item">
           <a
             class="nav-link <?= $halamanAktif === 'tentang.php' ? 'active' : ''; ?>"
-            href="/newsportal/tentang.php">
+            href="<?= BASE_URL ?>/tentang.php">
             Tentang
           </a>
         </li>
 
         <li class="nav-item ms-lg-3">
-          <a href="/newsportal/auth/login.php" class="navbar-login">
+          <a href="<?= BASE_URL ?>/auth/login.php" class="navbar-login">
             Login
           </a>
         </li>

@@ -2,7 +2,8 @@
 
 session_start();
 
-require_once "../config/koneksi.php";
+require_once __DIR__ . '/../config/base_url.php';
+require_once __DIR__ . '/../config/koneksi.php';
 
 $error = "";
 
@@ -35,15 +36,15 @@ if (isset($_POST['login'])) {
 
         if ($data['role'] === 'super_admin') {
 
-          header("Location: ../admin/dashboard.php");
+          header("Location: " . BASE_URL . "/admin/dashboard.php");
           exit;
         } elseif ($data['role'] === 'admin') {
 
-          header("Location: ../admin/index.php");
+          header("Location: " . BASE_URL . "/admin/index.php");
           exit;
         } elseif ($data['role'] === 'user') {
 
-          header("Location: ../admin/index.php");
+          header("Location: " . BASE_URL . "/admin/index.php");
           exit;
         } else {
 
@@ -81,7 +82,7 @@ if (isset($_POST['login'])) {
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-  <link rel="stylesheet" href="../assets/css/style.css?v=2">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=2">
 
 </head>
 
@@ -193,7 +194,7 @@ if (isset($_POST['login'])) {
 
       <div class="login-back">
 
-        <a href="../index.php">
+        <a href="<?= BASE_URL ?>/index.php">
           <i class="bi bi-arrow-left"></i>
           Kembali ke Beranda
         </a>

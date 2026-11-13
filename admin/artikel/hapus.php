@@ -2,17 +2,25 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/../../config/base_url.php';
+
 // CEK LOGIN
 if (!isset($_SESSION['role'])) {
-  header("Location: ../../auth/login.php");
+  header("Location: " . BASE_URL . "/auth/login.php");
   exit;
 }
 
-require_once "../../config/koneksi.php";
+require_once __DIR__ . '/../../config/koneksi.php';
+
+// URL halaman artikel
+$artikelUrl = BASE_URL . '/admin/artikel/index.php';
+
+// Lokasi folder uploads
+$folderUpload = __DIR__ . '/../../uploads/';
 
 // HANYA MENERIMA REQUEST POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  header("Location: index.php");
+  header("Location: " . $artikelUrl);
   exit;
 }
 
@@ -20,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-  header("Location: index.php?pesan=id_tidak_valid");
+  header("Location: " . $artikelUrl . "?pesan=id_tidak_valid");
   exit;
 }
 
@@ -38,7 +46,7 @@ try {
 
   // CEK ARTIKEL
   if (!$artikel) {
-    header("Location: index.php?pesan=tidak_ditemukan");
+    header("Location: " . $artikelUrl . "?pesan=tidak_ditemukan");
     exit;
   }
 
@@ -54,7 +62,7 @@ try {
   // HAPUS THUMBNAIL JIKA DATA BERHASIL DIHAPUS
   if (!empty($artikel['thumbnail'])) {
     $namaFile = basename($artikel['thumbnail']);
-    $lokasi = "../../uploads/" . $namaFile;
+    $lokasi = $folderUpload . $namaFile;
 
     if (is_file($lokasi)) {
       if (!unlink($lokasi)) {
@@ -63,11 +71,11 @@ try {
     }
   }
 
-  header("Location: index.php?pesan=hapus");
+  header("Location: " . $artikelUrl . "?pesan=hapus");
   exit;
 } catch (PDOException $e) {
   error_log($e->getMessage());
 
-  header("Location: index.php?pesan=gagal");
+  header("Location: " . $artikelUrl . "?pesan=gagal");
   exit;
 }
