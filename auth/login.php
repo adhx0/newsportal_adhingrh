@@ -5,6 +5,27 @@ session_start();
 require_once __DIR__ . '/../config/base_url.php';
 require_once __DIR__ . '/../config/koneksi.php';
 
+// Jika pengguna sudah login, arahkan sesuai role
+if (isset($_SESSION['id'], $_SESSION['role'])) {
+
+  if ($_SESSION['role'] === 'super_admin') {
+    header("Location: " . BASE_URL . "/admin/dashboard.php");
+    exit;
+  } elseif (
+    $_SESSION['role'] === 'admin' ||
+    $_SESSION['role'] === 'user'
+  ) {
+    header("Location: " . BASE_URL . "/admin/index.php");
+    exit;
+  } else {
+    // Session dengan role tidak valid
+    session_unset();
+    session_destroy();
+
+    session_start();
+  }
+}
+
 $error = "";
 
 if (isset($_POST['login'])) {
@@ -28,29 +49,31 @@ if (isset($_POST['login'])) {
 
       if (password_verify($password, $data['password'])) {
 
-        session_regenerate_id(true);
-
-        $_SESSION['id'] = $data['id'];
-        $_SESSION['nama'] = $data['nama'];
-        $_SESSION['role'] = $data['role'];
-
-        if ($data['role'] === 'super_admin') {
-
-          header("Location: " . BASE_URL . "/admin/dashboard.php");
-          exit;
-        } elseif ($data['role'] === 'admin') {
-
-          header("Location: " . BASE_URL . "/admin/index.php");
-          exit;
-        } elseif ($data['role'] === 'user') {
-
-          header("Location: " . BASE_URL . "/admin/index.php");
-          exit;
+        if (
+          !in_array(
+            $data['role'],
+            ['super_admin', 'admin', 'user'],
+            true
+          )
+        ) {
+          $error = "Role akun tidak memiliki akses.";
         } else {
 
-          session_unset();
-          session_destroy();
-          $error = "Role akun tidak memiliki akses.";
+          session_regenerate_id(true);
+
+          $_SESSION['id'] = $data['id'];
+          $_SESSION['nama'] = $data['nama'];
+          $_SESSION['role'] = $data['role'];
+
+          if ($data['role'] === 'super_admin') {
+
+            header("Location: " . BASE_URL . "/admin/dashboard.php");
+            exit;
+          } else {
+
+            header("Location: " . BASE_URL . "/admin/index.php");
+            exit;
+          }
         }
       } else {
         $error = "Password yang kamu masukkan salah.";

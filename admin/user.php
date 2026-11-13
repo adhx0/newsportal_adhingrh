@@ -34,11 +34,19 @@ $users = $user->fetchAll(PDO::FETCH_ASSOC);
 // ID pengguna yang sedang login
 $currentUserId = (int) ($_SESSION['id'] ?? 0);
 
+// CSRF Token
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrfToken = $_SESSION['csrf_token'];
+
 // Notifikasi
 $notifikasi = [
   'tambah' => 'Data pengguna berhasil ditambahkan.',
   'edit'   => 'Data pengguna berhasil diperbarui.',
   'hapus'  => 'Data pengguna berhasil dihapus.',
+  'reset'  => 'Password pengguna berhasil direset.',
   'gagal'  => 'Data pengguna gagal diproses.'
 ];
 
@@ -72,7 +80,9 @@ include "sidebar.php";
 
   <!-- NOTIFIKASI -->
   <?php if ($pesanValid) : ?>
-    <div class="admin-notification <?= $pesan === 'gagal' ? 'notification-error' : 'notification-success'; ?>">
+    <div
+      class="admin-notification <?= $pesan === 'gagal' ? 'notification-error' : 'notification-success'; ?>"
+      role="alert">
 
       <i class="bi <?= $pesan === 'gagal' ? 'bi-exclamation-circle' : 'bi-check-circle'; ?>"></i>
 
@@ -81,8 +91,9 @@ include "sidebar.php";
       <button
         type="button"
         class="notification-close"
-        data-bs-dismiss="alert"
+        onclick="this.closest('.admin-notification').remove()"
         aria-label="Close">
+
         <i class="bi bi-x-lg"></i>
       </button>
 
@@ -202,6 +213,17 @@ include "sidebar.php";
                       title="Edit pengguna">
 
                       <i class="bi bi-pencil-square"></i>
+                    </button>
+
+                    <!-- TOMBOL RESET PASSWORD -->
+                    <button
+                      type="button"
+                      class="user-action-button action-edit"
+                      data-bs-toggle="modal"
+                      data-bs-target="#reset<?= $userId; ?>"
+                      title="Reset password">
+
+                      <i class="bi bi-key"></i>
                     </button>
 
                     <!-- TOMBOL HAPUS -->
@@ -379,6 +401,115 @@ include "sidebar.php";
             <button type="submit" class="admin-primary-button">
               <i class="bi bi-check-lg"></i>
               Simpan Perubahan
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+<?php endforeach; ?>
+
+<!-- ==================================
+     MODAL RESET PASSWORD
+================================== -->
+
+<?php foreach ($users as $u) : ?>
+
+  <div
+    class="modal fade admin-user-modal"
+    id="reset<?= (int) $u['id']; ?>"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+      <div class="modal-content">
+
+        <form action="reset-password.php" method="POST">
+
+          <div class="modal-header">
+
+            <div>
+              <h5 class="modal-title">Reset Password</h5>
+              <p>
+                Ubah password untuk akun
+                <strong><?= e($u['nama']); ?></strong>.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close">
+            </button>
+
+          </div>
+
+          <div class="modal-body">
+
+            <input
+              type="hidden"
+              name="id"
+              value="<?= (int) $u['id']; ?>">
+
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="<?= e($csrfToken); ?>">
+
+            <div class="admin-form-group">
+              <label>Password Baru</label>
+
+              <div class="admin-input-wrapper">
+                <i class="bi bi-lock"></i>
+
+                <input
+                  type="password"
+                  name="password_baru"
+                  class="admin-form-control"
+                  placeholder="Masukkan password baru"
+                  minlength="8"
+                  required>
+              </div>
+
+              <small>Minimal 8 karakter.</small>
+            </div>
+
+            <div class="admin-form-group">
+              <label>Konfirmasi Password Baru</label>
+
+              <div class="admin-input-wrapper">
+                <i class="bi bi-shield-lock"></i>
+
+                <input
+                  type="password"
+                  name="konfirmasi_password"
+                  class="admin-form-control"
+                  placeholder="Ulangi password baru"
+                  minlength="8"
+                  required>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+
+            <button
+              type="button"
+              class="admin-secondary-button"
+              data-bs-dismiss="modal">
+              Batal
+            </button>
+
+            <button type="submit" class="admin-primary-button">
+              <i class="bi bi-key"></i>
+              Reset Password
             </button>
 
           </div>

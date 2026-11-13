@@ -119,13 +119,16 @@ include "../sidebar.php";
                 <td>
                   <div class="user-action-buttons">
 
+                    <!-- EDIT KATEGORI -->
                     <a
                       href="edit.php?id=<?= (int)$row['id']; ?>"
-                      class="user-action-button edit"
+                      class="user-action-button action-edit"
                       title="Edit kategori">
+
                       <i class="bi bi-pencil-square"></i>
                     </a>
 
+                    <!-- HAPUS KATEGORI -->
                     <form
                       action="hapus.php"
                       method="POST"
@@ -138,9 +141,10 @@ include "../sidebar.php";
 
                       <button
                         type="submit"
-                        class="user-action-button delete"
+                        class="user-action-button action-delete"
                         title="Hapus kategori">
-                        <i class="bi bi-trash"></i>
+
+                        <i class="bi bi-trash3"></i>
                       </button>
 
                     </form>

@@ -204,7 +204,7 @@ include "../sidebar.php";
                     <!-- EDIT ARTIKEL -->
                     <a
                       href="edit.php?id=<?= (int)$row['id']; ?>"
-                      class="user-action-button edit"
+                      class="user-action-button action-edit"
                       title="Edit artikel">
 
                       <i class="bi bi-pencil-square"></i>
@@ -223,10 +223,10 @@ include "../sidebar.php";
 
                       <button
                         type="submit"
-                        class="user-action-button delete"
+                        class="user-action-button action-delete"
                         title="Hapus artikel">
 
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash3"></i>
                       </button>
 
                     </form>

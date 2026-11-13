@@ -20,7 +20,8 @@ $dashboardActive = (
   $currentPage === 'dashboard.php' ||
   ($currentPage === 'index.php' && strpos($currentPath, '/admin/') !== false
     && strpos($currentPath, '/artikel/') === false
-    && strpos($currentPath, '/kategori/') === false)
+    && strpos($currentPath, '/kategori/') === false
+    && strpos($currentPath, '/komentar/') === false)
 );
 
 // Label role
@@ -100,6 +101,28 @@ if ($isSuperAdmin) {
 
             <i class="bi bi-file-earmark-text"></i>
             <span>Artikel</span>
+          </a>
+        </li>
+
+        <!-- KELOLA KOMENTAR -->
+        <?php if ($isSuperAdmin || $isAdmin) : ?>
+          <li class="nav-item">
+            <a href="<?= BASE_URL ?>/admin/komentar/index.php"
+              class="sidebar-link <?= strpos($currentPath, '/komentar/') !== false ? 'active' : ''; ?>">
+
+              <i class="bi bi-chat-left-text"></i>
+              <span>Kelola Komentar</span>
+            </a>
+          </li>
+        <?php endif; ?>
+
+        <!-- UBAH PASSWORD -->
+        <li class="nav-item">
+          <a href="<?= BASE_URL ?>/admin/ubah-password.php"
+            class="sidebar-link <?= $currentPage === 'ubah-password.php' ? 'active' : ''; ?>">
+
+            <i class="bi bi-key"></i>
+            <span>Ubah Password</span>
           </a>
         </li>
 
