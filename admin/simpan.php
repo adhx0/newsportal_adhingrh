@@ -12,7 +12,7 @@ if (!isset($_SESSION['role'])) {
 
 // Hanya Super Admin yang boleh menambahkan user
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/index.php");
+  header("Location: " . BASE_URL . "/admin/dashboard.php");
   exit;
 }
 
@@ -61,7 +61,7 @@ try {
   // Simpan pengguna
   $query = $koneksi->prepare(
     "INSERT INTO users (nama, email, password, role)
-    VALUES (:nama, :email, :password, :role)"
+        VALUES (:nama, :email, :password, :role)"
   );
 
   $query->execute([

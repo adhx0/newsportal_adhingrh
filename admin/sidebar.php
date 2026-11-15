@@ -10,19 +10,11 @@ $isSuperAdmin = $role === 'super_admin';
 $isAdmin = $role === 'admin';
 $isUser = $role === 'user';
 
-// URL Dashboard
-$dashboardUrl = $isSuperAdmin
-  ? BASE_URL . '/admin/dashboard.php'
-  : BASE_URL . '/admin/index.php';
+// URL Dashboard untuk semua role
+$dashboardUrl = BASE_URL . '/admin/dashboard.php';
 
 // Status menu Dashboard
-$dashboardActive = (
-  $currentPage === 'dashboard.php' ||
-  ($currentPage === 'index.php' && strpos($currentPath, '/admin/') !== false
-    && strpos($currentPath, '/artikel/') === false
-    && strpos($currentPath, '/kategori/') === false
-    && strpos($currentPath, '/komentar/') === false)
-);
+$dashboardActive = $currentPage === 'dashboard.php';
 
 // Label role
 if ($isSuperAdmin) {

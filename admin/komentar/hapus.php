@@ -14,7 +14,7 @@ if (!isset($_SESSION['role'])) {
 $role = $_SESSION['role'];
 
 if (!in_array($role, ['super_admin', 'admin'], true)) {
-  header("Location: " . BASE_URL . "/admin/index.php");
+  header("Location: " . BASE_URL . "/admin/dashboard.php");
   exit;
 }
 

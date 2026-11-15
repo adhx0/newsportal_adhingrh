@@ -8,14 +8,14 @@ require_once __DIR__ . '/../config/koneksi.php';
 // Jika pengguna sudah login, arahkan sesuai role
 if (isset($_SESSION['id'], $_SESSION['role'])) {
 
-  if ($_SESSION['role'] === 'super_admin') {
-    header("Location: " . BASE_URL . "/admin/dashboard.php");
-    exit;
-  } elseif (
-    $_SESSION['role'] === 'admin' ||
-    $_SESSION['role'] === 'user'
+  if (
+    in_array(
+      $_SESSION['role'],
+      ['super_admin', 'admin', 'user'],
+      true
+    )
   ) {
-    header("Location: " . BASE_URL . "/admin/index.php");
+    header("Location: " . BASE_URL . "/admin/dashboard.php");
     exit;
   } else {
     // Session dengan role tidak valid
@@ -65,15 +65,9 @@ if (isset($_POST['login'])) {
           $_SESSION['nama'] = $data['nama'];
           $_SESSION['role'] = $data['role'];
 
-          if ($data['role'] === 'super_admin') {
-
-            header("Location: " . BASE_URL . "/admin/dashboard.php");
-            exit;
-          } else {
-
-            header("Location: " . BASE_URL . "/admin/index.php");
-            exit;
-          }
+          // Semua role diarahkan ke dashboard yang sama
+          header("Location: " . BASE_URL . "/admin/dashboard.php");
+          exit;
         }
       } else {
         $error = "Password yang kamu masukkan salah.";

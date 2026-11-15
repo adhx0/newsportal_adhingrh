@@ -12,7 +12,7 @@ if (!isset($_SESSION['role'])) {
 
 // Hanya Super Admin yang boleh reset password
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/index.php");
+  header("Location: " . BASE_URL . "/admin/dashboard.php");
   exit;
 }
 
@@ -109,8 +109,8 @@ try {
   // Update password pengguna
   $query = $koneksi->prepare(
     "UPDATE users
-        SET password = :password
-        WHERE id = :id"
+         SET password = :password
+         WHERE id = :id"
   );
 
   $query->execute([

@@ -9,7 +9,7 @@ if (!isset($_SESSION['role'])) {
 }
 
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/index.php");
+  header("Location: " . BASE_URL . "/admin/dashboard.php");
   exit;
 }
 

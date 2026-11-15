@@ -12,7 +12,7 @@ if (!isset($_SESSION['role'])) {
 
 // Hanya Super Admin yang boleh mengedit user
 if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/index.php");
+  header("Location: " . BASE_URL . "/admin/dashboard.php");
   exit;
 }
 
@@ -56,10 +56,10 @@ try {
   // Update data pengguna
   $query = $koneksi->prepare(
     "UPDATE users
-    SET nama = :nama,
-        email = :email,
-        role = :role
-    WHERE id = :id"
+         SET nama = :nama,
+             email = :email,
+             role = :role
+         WHERE id = :id"
   );
 
   $query->execute([
