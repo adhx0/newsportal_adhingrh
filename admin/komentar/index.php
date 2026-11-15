@@ -176,10 +176,10 @@ include "../sidebar.php";
 
                       <button
                         type="submit"
-                        class="user-action-button delete"
+                        class="user-action-button action-delete"
                         title="Hapus komentar">
 
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash3"></i>
                       </button>
 
                     </form>
