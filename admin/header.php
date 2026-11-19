@@ -8,6 +8,9 @@ require_once __DIR__ . '/../config/base_url.php';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/img/favicon.png">
+
   <title>Admin Panel | NewsPortal</title>
 
   <!-- Bootstrap CSS -->
