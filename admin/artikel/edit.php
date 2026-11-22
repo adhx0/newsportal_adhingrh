@@ -21,6 +21,25 @@ function e($value)
   );
 }
 
+// Validasi isi artikel
+function validasiIsiArtikel($isi)
+{
+  $teks = trim(
+    str_replace(
+      '&nbsp;',
+      ' ',
+      strip_tags($isi)
+    )
+  );
+
+  $memilikiMedia = preg_match(
+    '/<oembed\b[^>]*\burl=(["\']).+?\1/i',
+    $isi
+  );
+
+  return $teks !== '' || $memilikiMedia;
+}
+
 // URL halaman artikel
 $artikelUrl = BASE_URL . '/admin/artikel/index.php';
 
@@ -80,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validasi data
     if (
       $judul === '' ||
-      trim(strip_tags($isi)) === '' ||
+      !validasiIsiArtikel($isi) ||
       !$kategori_id
     ) {
       throw new Exception("Lengkapi semua data artikel.");
@@ -166,6 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Update database
+    // media_url lama tetap dipertahankan
     $update = $koneksi->prepare(
       "UPDATE artikel SET
                 judul = :judul,
@@ -190,6 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $gambarBaru !== $gambarLama &&
       !empty($gambarLama)
     ) {
+
       $fileLama = $folderUpload . basename($gambarLama);
 
       if (is_file($fileLama)) {
@@ -199,10 +220,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     header("Location: " . $artikelUrl . "?pesan=edit");
     exit;
-  } catch (Throwable $e) {
+  } catch (Throwable $error) {
 
     error_log(
-      "Gagal memperbarui artikel: " . $e->getMessage()
+      "Gagal memperbarui artikel: " . $error->getMessage()
     );
 
     // Hapus thumbnail baru jika proses gagal
@@ -210,9 +231,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       unlink($lokasiBaru);
     }
 
-    $pesan = $e instanceof PDOException
+    $pesan = $error instanceof PDOException
       ? "Artikel gagal diperbarui. Periksa kembali data artikel."
-      : $e->getMessage();
+      : $error->getMessage();
 
     // Pertahankan input
     $artikel['judul'] = $judul;
@@ -227,7 +248,6 @@ include "../sidebar.php";
 
 <div class="admin-page article-form-page">
 
-  <!-- Header halaman -->
   <div class="admin-page-header">
     <div>
       <div class="admin-page-eyebrow">Konten Website</div>
@@ -241,7 +261,6 @@ include "../sidebar.php";
     </a>
   </div>
 
-  <!-- Form edit artikel -->
   <div class="admin-form-card">
 
     <div class="admin-form-card-header">
@@ -321,8 +340,11 @@ include "../sidebar.php";
             name="isi_berita"
             id="editor"
             rows="12"
-            class="form-control admin-form-control"
-            required><?= e($artikel['isi_berita']); ?></textarea>
+            class="form-control admin-form-control"><?= e($artikel['isi_berita']); ?></textarea>
+
+          <small class="admin-form-help">
+            Gunakan tombol Media Embed pada toolbar untuk menambahkan video YouTube atau MP4.
+          </small>
         </div>
 
         <!-- Thumbnail lama -->
@@ -391,11 +413,13 @@ include "../sidebar.php";
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+
     const input = document.getElementById('thumbnail');
     const preview = document.getElementById('thumbnailPreview');
     const image = document.getElementById('previewImage');
 
     input.addEventListener('change', function() {
+
       const file = this.files[0];
 
       if (!file) {
@@ -432,7 +456,9 @@ include "../sidebar.php";
       };
 
       reader.readAsDataURL(file);
+
     });
+
   });
 </script>
 

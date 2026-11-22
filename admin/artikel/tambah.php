@@ -21,11 +21,30 @@ function e($value)
   );
 }
 
+// Validasi isi artikel
+function validasiIsiArtikel($isi)
+{
+  $teks = trim(
+    str_replace(
+      '&nbsp;',
+      ' ',
+      strip_tags($isi)
+    )
+  );
+
+  $memilikiMedia = preg_match(
+    '/<oembed\b[^>]*\burl=(["\']).+?\1/i',
+    $isi
+  );
+
+  return $teks !== '' || $memilikiMedia;
+}
+
 // Ambil kategori
 $kategoriQuery = $koneksi->query(
   "SELECT id, nama_kategori
-    FROM kategori
-    ORDER BY nama_kategori ASC"
+     FROM kategori
+     ORDER BY nama_kategori ASC"
 );
 
 $daftarKategori = $kategoriQuery->fetchAll(PDO::FETCH_ASSOC);
@@ -54,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validasi data artikel
     if (
       $judul === '' ||
-      trim(strip_tags($isi)) === '' ||
+      !validasiIsiArtikel($isi) ||
       !$kategori_id ||
       !$user_id
     ) {
@@ -127,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       bin2hex(random_bytes(16)) .
       '.' . $allowedTypes[$mime];
 
-    // Lokasi folder uploads di root proyek
+    // Lokasi folder uploads
     $folderUpload = __DIR__ . '/../../uploads/';
 
     if (!is_dir($folderUpload) || !is_writable($folderUpload)) {
@@ -148,6 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     slug,
                     isi_berita,
                     thumbnail,
+                    media_url,
                     kategori_id,
                     user_id
                 )
@@ -157,6 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     :slug,
                     :isi_berita,
                     :thumbnail,
+                    NULL,
                     :kategori_id,
                     :user_id
                 )"
@@ -173,10 +194,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     header("Location: " . BASE_URL . "/admin/artikel/index.php?pesan=tambah");
     exit;
-  } catch (Throwable $e) {
+  } catch (Throwable $error) {
 
     error_log(
-      "Gagal menambahkan artikel: " . $e->getMessage()
+      "Gagal menambahkan artikel: " . $error->getMessage()
     );
 
     // Hapus thumbnail jika proses database gagal
@@ -184,9 +205,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       unlink($lokasi);
     }
 
-    $pesan = $e instanceof PDOException
+    $pesan = $error instanceof PDOException
       ? "Artikel gagal disimpan. Periksa kembali data artikel."
-      : $e->getMessage();
+      : $error->getMessage();
   }
 }
 
@@ -196,7 +217,6 @@ include "../sidebar.php";
 
 <div class="admin-page article-form-page">
 
-  <!-- Header halaman -->
   <div class="admin-page-header">
     <div>
       <div class="admin-page-eyebrow">Konten Website</div>
@@ -210,7 +230,6 @@ include "../sidebar.php";
     </a>
   </div>
 
-  <!-- Form artikel -->
   <div class="admin-form-card">
 
     <div class="admin-form-card-header">
@@ -291,6 +310,10 @@ include "../sidebar.php";
             id="editor"
             rows="12"
             class="form-control admin-form-control"><?= e($_POST['isi_berita'] ?? ''); ?></textarea>
+
+          <small class="admin-form-help">
+            Gunakan tombol Media Embed pada toolbar untuk menambahkan video YouTube atau MP4.
+          </small>
         </div>
 
         <!-- Thumbnail -->
@@ -336,11 +359,13 @@ include "../sidebar.php";
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+
     const input = document.getElementById('thumbnail');
     const preview = document.getElementById('thumbnailPreview');
     const image = document.getElementById('previewImage');
 
     input.addEventListener('change', function() {
+
       const file = this.files[0];
 
       if (!file) {
@@ -377,7 +402,9 @@ include "../sidebar.php";
       };
 
       reader.readAsDataURL(file);
+
     });
+
   });
 </script>
 

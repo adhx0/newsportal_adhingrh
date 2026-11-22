@@ -21,27 +21,199 @@ function e($value)
   );
 }
 
+// MEMPROSES URL YOUTUBE
+function getYouTubeEmbedUrl($url)
+{
+  $url = trim((string)($url ?? ''));
+
+  if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+    return null;
+  }
+
+  $parts = parse_url($url);
+
+  if (!$parts || empty($parts['host'])) {
+    return null;
+  }
+
+  $scheme = strtolower($parts['scheme'] ?? '');
+
+  if (!in_array($scheme, ['http', 'https'], true)) {
+    return null;
+  }
+
+  $host = strtolower($parts['host']);
+
+  $allowedHosts = [
+    'youtube.com',
+    'www.youtube.com',
+    'm.youtube.com',
+    'youtube-nocookie.com',
+    'www.youtube-nocookie.com',
+    'youtu.be'
+  ];
+
+  if (!in_array($host, $allowedHosts, true)) {
+    return null;
+  }
+
+  $videoId = '';
+
+  if ($host === 'youtu.be') {
+
+    $videoId = trim($parts['path'] ?? '', '/');
+  } else {
+
+    parse_str($parts['query'] ?? '', $queryParams);
+
+    $videoId = $queryParams['v'] ?? '';
+
+    if ($videoId === '' && !empty($parts['path'])) {
+
+      if (
+        preg_match(
+          '~/(?:embed|shorts|live)/([a-zA-Z0-9_-]{11})~',
+          $parts['path'],
+          $matches
+        )
+      ) {
+        $videoId = $matches[1];
+      }
+    }
+  }
+
+  if (!preg_match('/^[a-zA-Z0-9_-]{11}$/', $videoId)) {
+    return null;
+  }
+
+  return 'https://www.youtube-nocookie.com/embed/' . $videoId;
+}
+
+// VALIDASI URL MP4
+function isMp4MediaUrl($url)
+{
+  $url = trim((string)($url ?? ''));
+
+  if (!filter_var($url, FILTER_VALIDATE_URL)) {
+    return false;
+  }
+
+  $parts = parse_url($url);
+
+  if (!$parts || empty($parts['host'])) {
+    return false;
+  }
+
+  $scheme = strtolower($parts['scheme'] ?? '');
+  $path = (string)($parts['path'] ?? '');
+
+  return in_array($scheme, ['http', 'https'], true)
+    && preg_match('/\.mp4$/i', $path);
+}
+
+// MENGUBAH OEMBED MENJADI VIDEO PLAYER
+function renderMediaEmbed($isi)
+{
+  return preg_replace_callback(
+    '~<oembed\b[^>]*\burl=(["\'])(.*?)\1[^>]*>\s*</oembed>~is',
+    function ($matches) {
+
+      $mediaUrl = html_entity_decode(
+        $matches[2],
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+      );
+
+      $youtubeUrl = getYouTubeEmbedUrl($mediaUrl);
+
+      // VIDEO YOUTUBE
+      if ($youtubeUrl !== null) {
+
+        return '
+                    <div class="article-media-wrapper my-4">
+                        <div class="ratio ratio-16x9">
+                            <iframe
+                                src="' . e($youtubeUrl) . '"
+                                title="Video artikel"
+                                loading="lazy"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                ';
+      }
+
+      // VIDEO MP4
+      if (isMp4MediaUrl($mediaUrl)) {
+
+        return '
+                    <div class="article-media-wrapper my-4">
+                        <video
+                            class="w-100"
+                            controls
+                            preload="metadata"
+                            playsinline>
+                            <source
+                                src="' . e($mediaUrl) . '"
+                                type="video/mp4">
+                            Browser kamu tidak mendukung pemutar video.
+                        </video>
+                    </div>
+                ';
+      }
+
+      // URL TIDAK VALID
+      return '';
+    },
+    $isi
+  );
+}
+
 // MENGAMBIL DATA ARTIKEL
 $query = $koneksi->prepare(
   "SELECT artikel.*,
-          kategori.nama_kategori,
-          users.nama
-  FROM artikel
-  LEFT JOIN kategori
-      ON artikel.kategori_id = kategori.id
-  LEFT JOIN users
-      ON artikel.user_id = users.id
-  WHERE artikel.id = :id
-  LIMIT 1"
+            kategori.nama_kategori,
+            users.nama
+    FROM artikel
+    LEFT JOIN kategori
+        ON artikel.kategori_id = kategori.id
+    LEFT JOIN users
+        ON artikel.user_id = users.id
+    WHERE artikel.id = :id
+    LIMIT 1"
 );
 
 $query->execute([':id' => $id]);
+
 $data = $query->fetch(PDO::FETCH_ASSOC);
 
 // JIKA ARTIKEL TIDAK DITEMUKAN
 if (!$data) {
   http_response_code(404);
   die("Artikel tidak ditemukan.");
+}
+
+// PROSES ISI ARTIKEL
+$isiArtikel = renderMediaEmbed(
+  (string)($data['isi_berita'] ?? '')
+);
+
+// FALLBACK MEDIA URL LAMA
+// Digunakan hanya jika artikel belum memiliki media embed di isi berita.
+$memilikiMediaEmbed = preg_match(
+  '/<oembed\b/i',
+  (string)($data['isi_berita'] ?? '')
+);
+
+$mediaUrlLama = '';
+
+if (!$memilikiMediaEmbed) {
+
+  $mediaUrlLama = trim(
+    (string)($data['media_url'] ?? '')
+  );
 }
 
 // NOTIFIKASI KOMENTAR
@@ -62,6 +234,7 @@ if (
   $parentId = 0;
 
   if (isset($_POST['kirim_balasan'])) {
+
     $parentId = filter_var(
       $_POST['parent_id'] ?? '',
       FILTER_VALIDATE_INT
@@ -96,11 +269,11 @@ if (
 
           $cek_parent = $koneksi->prepare(
             "SELECT id
-            FROM komentar
-            WHERE id = :parent_id
-              AND artikel_id = :artikel_id
-              AND parent_id IS NULL
-            LIMIT 1"
+                        FROM komentar
+                        WHERE id = :parent_id
+                          AND artikel_id = :artikel_id
+                          AND parent_id IS NULL
+                        LIMIT 1"
           );
 
           $cek_parent->execute([
@@ -118,9 +291,9 @@ if (
         // MENYIMPAN KOMENTAR
         $stmt = $koneksi->prepare(
           "INSERT INTO komentar
-            (artikel_id, parent_id, nama, email, komentar)
-          VALUES
-            (:artikel_id, :parent_id, :nama, :email, :komentar)"
+                        (artikel_id, parent_id, nama, email, komentar)
+                    VALUES
+                        (:artikel_id, :parent_id, :nama, :email, :komentar)"
         );
 
         $stmt->execute([
@@ -161,9 +334,9 @@ if (
 // MENGAMBIL SELURUH KOMENTAR ARTIKEL
 $stmt_komentar = $koneksi->prepare(
   "SELECT *
-  FROM komentar
-  WHERE artikel_id = :artikel_id
-  ORDER BY id DESC"
+    FROM komentar
+    WHERE artikel_id = :artikel_id
+    ORDER BY id DESC"
 );
 
 $stmt_komentar->execute([':artikel_id' => $id]);
@@ -335,6 +508,30 @@ include __DIR__ . "/includes/navbar.php";
     font-size: 13px;
   }
 
+  /* MEDIA DALAM ISI ARTIKEL */
+  .article-content .media {
+    width: 100%;
+    margin: 24px 0;
+  }
+
+  .article-content .media iframe,
+  .article-content .media video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .article-content .media iframe {
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+  }
+
+  .article-content .article-media-wrapper video {
+    border-radius: 10px;
+    background: #000;
+  }
+
   /* RESPONSIVE */
   @media (max-width: 576px) {
 
@@ -359,9 +556,13 @@ include __DIR__ . "/includes/navbar.php";
 
   <!-- BREADCRUMB -->
   <div class="breadcrumb-news">
+
     <a href="<?= BASE_URL ?>/index.php">Beranda</a>
+
     <span>/</span>
+
     <span>Detail Berita</span>
+
   </div>
 
   <!-- ARTIKEL -->
@@ -409,17 +610,68 @@ include __DIR__ . "/includes/navbar.php";
 
     <?php endif; ?>
 
+    <!-- MEDIA URL LAMA (FALLBACK) -->
+    <?php if ($mediaUrlLama !== '') : ?>
+
+      <?php $youtubeEmbedUrl = getYouTubeEmbedUrl($mediaUrlLama); ?>
+
+      <?php if ($youtubeEmbedUrl !== null) : ?>
+
+        <div class="article-media-wrapper mb-4">
+          <div class="ratio ratio-16x9">
+
+            <iframe
+              src="<?= e($youtubeEmbedUrl); ?>"
+              title="<?= e($data['judul']); ?>"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen>
+            </iframe>
+
+          </div>
+        </div>
+
+      <?php elseif (isMp4MediaUrl($mediaUrlLama)) : ?>
+
+        <div class="article-media-wrapper mb-4">
+
+          <video
+            class="w-100"
+            controls
+            preload="metadata"
+            playsinline>
+
+            <source
+              src="<?= e($mediaUrlLama); ?>"
+              type="video/mp4">
+
+            Browser kamu tidak mendukung pemutar video.
+
+          </video>
+
+        </div>
+
+      <?php endif; ?>
+
+    <?php endif; ?>
+
     <!-- ISI ARTIKEL -->
     <div class="article-content">
-      <?= $data['isi_berita']; ?>
+
+      <?= $isiArtikel; ?>
+
     </div>
 
     <!-- TOMBOL KEMBALI -->
     <div class="article-footer">
 
       <a href="<?= BASE_URL ?>/index.php" class="back-link">
+
         <i class="bi bi-arrow-left"></i>
+
         Kembali ke Beranda
+
       </a>
 
     </div>
