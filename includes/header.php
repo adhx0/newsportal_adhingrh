@@ -1,6 +1,4 @@
-<?php
-require_once __DIR__ . '/../config/base_url.php';
-?>
+<?php require_once __DIR__ . '/helpers.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -11,18 +9,14 @@ require_once __DIR__ . '/../config/base_url.php';
 
   <title>News Portal</title>
 
-  <!-- Bootstrap CSS -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-  <!-- Bootstrap Icons -->
+  <!-- Bootstrap CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-  <!-- Custom CSS -->
-  <link
-    rel="stylesheet"
-    href="<?= BASE_URL ?>/assets/css/style.css?v=2">
+  <!-- Custom CSS (versi otomatis dari waktu modifikasi file) -->
+  <link rel="stylesheet" href="<?= assetUrl('assets/css/style.css') ?>">
 </head>
 
 <body>

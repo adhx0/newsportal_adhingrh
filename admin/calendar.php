@@ -19,7 +19,8 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
 
 <div class="dashboard-calendar-wrapper">
 
-  <button type="button"
+  <button
+    type="button"
     class="dashboard-date"
     id="calendarToggle"
     aria-expanded="false"
@@ -31,7 +32,8 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
 
   </button>
 
-  <div class="dashboard-calendar-popup"
+  <div
+    class="dashboard-calendar-popup"
     id="dashboardCalendar"
     hidden>
 
@@ -72,147 +74,6 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
 
 </div>
 
-<style>
-  .dashboard-calendar-wrapper {
-    position: relative;
-    display: inline-block;
-  }
-
-  .dashboard-date {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    cursor: pointer;
-    font: inherit;
-  }
-
-  .calendar-chevron {
-    font-size: 11px;
-    transition: transform 0.2s ease;
-  }
-
-  .dashboard-calendar-wrapper.calendar-open .calendar-chevron {
-    transform: rotate(180deg);
-  }
-
-  .dashboard-calendar-popup {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    z-index: 1100;
-    width: 300px;
-    padding: 16px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    color: #1f2937;
-  }
-
-  .dashboard-calendar-popup[hidden] {
-    display: none;
-  }
-
-  .calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
-
-  .calendar-month-year {
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  .calendar-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 8px;
-    background: #f3f4f6;
-    color: #374151;
-    cursor: pointer;
-  }
-
-  .calendar-nav:hover {
-    background: #e5e7eb;
-  }
-
-  .calendar-weekdays,
-  .calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    text-align: center;
-  }
-
-  .calendar-weekdays {
-    margin-bottom: 8px;
-  }
-
-  .calendar-weekdays span {
-    padding: 5px 0;
-    color: #6b7280;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .calendar-day {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #374151;
-    font-size: 13px;
-    cursor: default;
-  }
-
-  .calendar-day.today {
-    background: #2563eb;
-    color: #fff;
-    font-weight: 700;
-  }
-
-  .calendar-day:not(.empty):not(.today):hover {
-    background: #eff6ff;
-    color: #2563eb;
-  }
-
-  .calendar-day.empty {
-    visibility: hidden;
-  }
-
-  .calendar-footer {
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid #e5e7eb;
-    text-align: center;
-  }
-
-  .calendar-footer button {
-    border: none;
-    background: transparent;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  @media (max-width: 480px) {
-    .dashboard-calendar-popup {
-      right: -5px;
-      width: 280px;
-    }
-  }
-</style>
-
 <script>
   (function() {
     const wrapper = document.querySelector('.dashboard-calendar-wrapper');
@@ -245,14 +106,12 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
       const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-      // Ruang kosong sebelum tanggal 1
       for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement('span');
         empty.className = 'calendar-day empty';
         daysContainer.appendChild(empty);
       }
 
-      // Tampilkan tanggal dalam bulan
       for (let day = 1; day <= totalDays; day++) {
         const button = document.createElement('span');
 
@@ -271,10 +130,42 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
       }
     }
 
+    function positionCalendar() {
+      if (window.innerWidth <= 768 && !calendar.hidden) {
+        const rect = toggle.getBoundingClientRect();
+        const calendarWidth = Math.min(300, window.innerWidth - 24);
+
+        calendar.style.position = 'fixed';
+        calendar.style.width = calendarWidth + 'px';
+        calendar.style.left = Math.max(
+          12,
+          Math.min(
+            rect.right - calendarWidth,
+            window.innerWidth - calendarWidth - 12
+          )
+        ) + 'px';
+
+        calendar.style.right = 'auto';
+        calendar.style.top = (rect.bottom + 10) + 'px';
+      } else {
+        calendar.style.position = '';
+        calendar.style.width = '';
+        calendar.style.left = '';
+        calendar.style.right = '';
+        calendar.style.top = '';
+      }
+    }
+
     function closeCalendar() {
       calendar.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
       wrapper.classList.remove('calendar-open');
+
+      calendar.style.position = '';
+      calendar.style.width = '';
+      calendar.style.left = '';
+      calendar.style.right = '';
+      calendar.style.top = '';
     }
 
     toggle.addEventListener('click', function() {
@@ -283,6 +174,10 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
       calendar.hidden = isOpen;
       toggle.setAttribute('aria-expanded', String(!isOpen));
       wrapper.classList.toggle('calendar-open', !isOpen);
+
+      if (!isOpen) {
+        positionCalendar();
+      }
     });
 
     prevButton.addEventListener('click', function() {
@@ -313,8 +208,14 @@ $tanggalHariIni = date('d') . ' ' . $namaBulan[(int)date('n')] . ' ' . date('Y')
       renderCalendar();
     });
 
+    window.addEventListener('resize', positionCalendar);
+    window.addEventListener('scroll', positionCalendar, true);
+
     document.addEventListener('click', function(event) {
-      if (!wrapper.contains(event.target)) {
+      if (
+        !wrapper.contains(event.target) &&
+        !calendar.contains(event.target)
+      ) {
         closeCalendar();
       }
     });

@@ -1,4 +1,3 @@
-
 CREATE DATABASE IF NOT EXISTS newsportal_db
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_general_ci;
@@ -44,14 +43,17 @@ CREATE TABLE artikel (
     slug VARCHAR(255) NOT NULL,
     isi_berita LONGTEXT NOT NULL,
     thumbnail VARCHAR(255) DEFAULT NULL,
+    media_url VARCHAR(500) DEFAULT NULL,
     kategori_id INT DEFAULT NULL,
     user_id INT DEFAULT NULL,
     tanggal DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
     PRIMARY KEY (id),
 
-    KEY idx_artikel_kategori (kategori_id),
-    KEY idx_artikel_users (user_id),
+    -- Artikel per kategori, urut terbaru (beranda dan kategori.php)
+    KEY idx_artikel_kategori (kategori_id, id),
+    -- Artikel milik user (admin/artikel dan dashboard)
+    KEY idx_artikel_users (user_id, id),
 
     CONSTRAINT fk_artikel_kategori
         FOREIGN KEY (kategori_id)
@@ -83,7 +85,8 @@ CREATE TABLE komentar (
 
     PRIMARY KEY (id),
 
-    KEY idx_komentar_artikel (artikel_id),
+    -- Komentar per artikel, urut terbaru (detail.php)
+    KEY idx_komentar_artikel (artikel_id, id),
     KEY idx_komentar_parent (parent_id),
 
     CONSTRAINT fk_komentar_artikel

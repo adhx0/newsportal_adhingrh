@@ -1,27 +1,18 @@
 <?php
 
-require_once __DIR__ . "/config/base_url.php";
+require_once __DIR__ . "/includes/helpers.php";
 require_once __DIR__ . "/config/koneksi.php";
-
-// FUNCTION ESCAPE HTML
-function e($value)
-{
-  return htmlspecialchars(
-    (string)($value ?? ''),
-    ENT_QUOTES,
-    'UTF-8'
-  );
-}
 
 // AMBIL PARAMETER
 $id_kategori = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$keyword = trim($_GET['keyword'] ?? '');
+$keyword = mb_substr(trim((string) ($_GET['keyword'] ?? '')), 0, 100);
+$polaKeyword = polaLike($keyword);
 
 // JIKA ID TIDAK ADA, TAMPILKAN SEMUA KATEGORI
 if (!$id_kategori || $id_kategori < 1) {
 
   $stmt_kategori = $koneksi->query(
-    "SELECT * FROM kategori ORDER BY id DESC"
+    "SELECT id, nama_kategori FROM kategori ORDER BY id DESC"
   );
 
   $daftar_kategori = $stmt_kategori->fetchAll(PDO::FETCH_ASSOC);
@@ -98,7 +89,7 @@ if (!$id_kategori || $id_kategori < 1) {
 
 // AMBIL DATA KATEGORI
 $stmt_kategori = $koneksi->prepare(
-  "SELECT * FROM kategori WHERE id = :id LIMIT 1"
+  "SELECT id, nama_kategori FROM kategori WHERE id = :id LIMIT 1"
 );
 
 $stmt_kategori->execute([
@@ -130,7 +121,7 @@ $stmt_total = $koneksi->prepare(
 
 $stmt_total->execute([
   ':kategori_id' => $id_kategori,
-  ':keyword' => '%' . $keyword . '%'
+  ':keyword' => $polaKeyword
 ]);
 
 $total_data = (int) $stmt_total->fetchColumn();
@@ -145,7 +136,8 @@ if ($total_page > 0 && $page > $total_page) {
 
 // AMBIL DATA ARTIKEL
 $stmt_artikel = $koneksi->prepare(
-  "SELECT artikel.*,
+  "SELECT artikel.id, artikel.judul, artikel.thumbnail, artikel.tanggal,
+          SUBSTRING(artikel.isi_berita, 1, 500) AS isi_berita,
           kategori.nama_kategori,
           users.nama
    FROM artikel
@@ -160,7 +152,7 @@ $stmt_artikel = $koneksi->prepare(
 );
 
 $stmt_artikel->bindValue(':kategori_id', $id_kategori, PDO::PARAM_INT);
-$stmt_artikel->bindValue(':keyword', '%' . $keyword . '%', PDO::PARAM_STR);
+$stmt_artikel->bindValue(':keyword', $polaKeyword, PDO::PARAM_STR);
 $stmt_artikel->bindValue(':limit', $limit, PDO::PARAM_INT);
 $stmt_artikel->bindValue(':offset', $offset, PDO::PARAM_INT);
 
@@ -262,7 +254,9 @@ include __DIR__ . "/includes/navbar.php";
               <img
                 src="<?= BASE_URL ?>/uploads/<?= rawurlencode(basename($row['thumbnail'])); ?>"
                 class="news-image"
-                alt="<?= e($row['judul']); ?>">
+                alt="<?= e($row['judul']); ?>"
+                loading="lazy"
+                decoding="async">
 
             <?php else : ?>
 

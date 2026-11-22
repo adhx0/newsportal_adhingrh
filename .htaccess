@@ -1,0 +1,17 @@
+# Kompresi teks (HTML, CSS, JS, JSON, SVG)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript \
+    application/javascript application/json image/svg+xml
+</IfModule>
+
+# Cache browser untuk aset statis.
+# CSS memakai ?v=<filemtime> (lihat assetUrl()), jadi aman di-cache lama.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+</IfModule>

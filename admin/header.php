@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/base_url.php';
+require_once __DIR__ . '/../includes/helpers.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -12,6 +12,8 @@ require_once __DIR__ . '/../config/base_url.php';
   <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/img/favicon.png">
 
   <title>Admin Panel | NewsPortal</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
   <!-- Bootstrap CSS -->
   <link
@@ -30,10 +32,8 @@ require_once __DIR__ . '/../config/base_url.php';
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
-  <!-- Custom CSS -->
-  <link
-    href="<?= BASE_URL ?>/assets/css/style.css?v=3"
-    rel="stylesheet">
+  <!-- Custom CSS (versi otomatis dari waktu modifikasi file) -->
+  <link href="<?= assetUrl('assets/css/style.css') ?>" rel="stylesheet">
 </head>
 
 <body>

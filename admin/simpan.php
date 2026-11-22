@@ -1,85 +1,38 @@
-
 <?php
-session_start();
 
-require_once __DIR__ . '/../config/base_url.php';
-
-// Validasi login
-if (!isset($_SESSION['role'])) {
-  header("Location: " . BASE_URL . "/auth/login.php");
-  exit;
-}
-
-// Hanya Super Admin yang boleh menambahkan user
-if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/dashboard.php");
-  exit;
-}
-
+require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/koneksi.php';
 
-// URL halaman pengelolaan user
-$userUrl = BASE_URL . '/admin/user.php';
+wajibLogin(['super_admin']);
 
-// Ambil input
+const URL_USER = '/admin/user.php';
+
 $nama = trim($_POST['nama'] ?? '');
 $email = trim($_POST['email'] ?? '');
-$passwordInput = $_POST['password'] ?? '';
+$password = $_POST['password'] ?? '';
 $role = $_POST['role'] ?? '';
 
-// Validasi input kosong
 if (
-  $nama === '' ||
-  $email === '' ||
-  $passwordInput === '' ||
-  $role === ''
+  $nama === '' || $password === '' ||
+  !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+  !in_array($role, ROLE_SEMUA, true)
 ) {
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
+  redirect(URL_USER, ['pesan' => 'gagal']);
 }
-
-// Validasi email
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
-}
-
-// Validasi role
-if (!in_array($role, ['admin', 'super_admin', 'user'], true)) {
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
-}
-
-// Hash password
-$password = password_hash(
-  $passwordInput,
-  PASSWORD_DEFAULT
-);
 
 try {
-
-  // Simpan pengguna
-  $query = $koneksi->prepare(
+  $koneksi->prepare(
     "INSERT INTO users (nama, email, password, role)
-        VALUES (:nama, :email, :password, :role)"
-  );
-
-  $query->execute([
-    ':nama' => $nama,
-    ':email' => $email,
-    ':password' => $password,
-    ':role' => $role
+     VALUES (:nama, :email, :password, :role)"
+  )->execute([
+    ':nama'     => $nama,
+    ':email'    => $email,
+    ':password' => password_hash($password, PASSWORD_DEFAULT),
+    ':role'     => $role,
   ]);
 
-  header("Location: " . $userUrl . "?pesan=tambah");
-  exit;
+  redirect(URL_USER, ['pesan' => 'tambah']);
 } catch (PDOException $e) {
-
-  // Catat error database
-  error_log(
-    "Gagal menambahkan pengguna: " . $e->getMessage()
-  );
-
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
+  error_log('Gagal menambahkan pengguna: ' . $e->getMessage());
+  redirect(URL_USER, ['pesan' => 'gagal']);
 }

@@ -1,246 +1,115 @@
 <?php
-session_start();
 
-require_once __DIR__ . '/../../config/base_url.php';
-
-// Validasi login
-if (!isset($_SESSION['role'])) {
-  header("Location: " . BASE_URL . "/auth/login.php");
-  exit;
-}
-
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/upload.php';
 require_once __DIR__ . '/../../config/koneksi.php';
 
-// Fungsi escape output
-function e($value)
-{
-  return htmlspecialchars(
-    (string)($value ?? ''),
-    ENT_QUOTES,
-    'UTF-8'
-  );
-}
+wajibLogin();
 
-// Validasi isi artikel
-function validasiIsiArtikel($isi)
-{
-  $teks = trim(
-    str_replace(
-      '&nbsp;',
-      ' ',
-      strip_tags($isi)
-    )
-  );
+const URL_DAFTAR_ARTIKEL = '/admin/artikel/index.php';
 
-  $memilikiMedia = preg_match(
-    '/<oembed\b[^>]*\burl=(["\']).+?\1/i',
-    $isi
-  );
-
-  return $teks !== '' || $memilikiMedia;
-}
-
-// URL halaman artikel
-$artikelUrl = BASE_URL . '/admin/artikel/index.php';
-
-// Lokasi folder uploads
 $folderUpload = __DIR__ . '/../../uploads/';
 
-// Validasi ID artikel
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-  header("Location: " . $artikelUrl . "?pesan=id_tidak_valid");
-  exit;
+  redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'id_tidak_valid']);
 }
 
-// Ambil data artikel
 $stmt = $koneksi->prepare(
-  "SELECT * FROM artikel WHERE id = :id"
+  "SELECT id, user_id, judul, isi_berita, thumbnail, kategori_id FROM artikel WHERE id = :id"
 );
-
 $stmt->execute([':id' => $id]);
+$artikel = $stmt->fetch();
 
-$artikel = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$artikel) {
-  header("Location: " . $artikelUrl . "?pesan=tidak_ditemukan");
-  exit;
+// Role "user" hanya boleh mengedit artikel miliknya sendiri.
+if (
+  !$artikel ||
+  ($_SESSION['role'] === 'user' && (int) $artikel['user_id'] !== (int) ($_SESSION['id'] ?? 0))
+) {
+  redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'tidak_ditemukan']);
 }
 
-// Ambil kategori
-$kategoriQuery = $koneksi->query(
-  "SELECT id, nama_kategori
-     FROM kategori
-     ORDER BY nama_kategori ASC"
-);
-
-$kategori = $kategoriQuery->fetchAll(PDO::FETCH_ASSOC);
+$kategori = $koneksi->query(
+  "SELECT id, nama_kategori FROM kategori ORDER BY nama_kategori ASC"
+)->fetchAll();
 
 $pesan = '';
-$lokasiBaru = null;
+$thumbnailBaru = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $judul = trim($_POST['judul'] ?? '');
   $isi = $_POST['isi_berita'] ?? '';
-
-  $kategori_id = filter_input(
-    INPUT_POST,
-    'kategori_id',
-    FILTER_VALIDATE_INT
-  );
-
-  $gambarLama = $artikel['thumbnail'];
-  $gambarBaru = $gambarLama;
+  $kategoriId = filter_input(INPUT_POST, 'kategori_id', FILTER_VALIDATE_INT);
 
   try {
 
-    // Validasi data
-    if (
-      $judul === '' ||
-      !validasiIsiArtikel($isi) ||
-      !$kategori_id
-    ) {
-      throw new Exception("Lengkapi semua data artikel.");
+    if ($judul === '' || !validasiIsiArtikel($isi) || !$kategoriId) {
+      throw new RuntimeException('Lengkapi semua data artikel.');
     }
 
-    // Validasi kategori
-    $cekKategori = $koneksi->prepare(
-      "SELECT id FROM kategori WHERE id = :id"
-    );
+    $cekKategori = $koneksi->prepare("SELECT 1 FROM kategori WHERE id = :id");
+    $cekKategori->execute([':id' => $kategoriId]);
 
-    $cekKategori->execute([
-      ':id' => $kategori_id
-    ]);
-
-    if (!$cekKategori->fetch(PDO::FETCH_ASSOC)) {
-      throw new Exception("Kategori yang dipilih tidak tersedia.");
+    if (!$cekKategori->fetchColumn()) {
+      throw new RuntimeException('Kategori yang dipilih tidak tersedia.');
     }
 
-    // Buat slug
-    $slug = strtolower($judul);
-    $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug);
-    $slug = trim($slug, '-');
+    $slug = buatSlug($judul);
 
     if ($slug === '') {
-      throw new Exception("Judul artikel tidak dapat dibuat menjadi slug.");
+      throw new RuntimeException('Judul artikel tidak dapat dibuat menjadi slug.');
     }
 
-    // Cek thumbnail baru
-    if (
-      isset($_FILES['thumbnail']) &&
-      $_FILES['thumbnail']['error'] !== UPLOAD_ERR_NO_FILE
-    ) {
+    // Thumbnail baru bersifat opsional; jika kosong, thumbnail lama dipertahankan.
+    $thumbnail = $artikel['thumbnail'];
 
-      $file = $_FILES['thumbnail'];
-
-      if ($file['error'] !== UPLOAD_ERR_OK) {
-        throw new Exception("Thumbnail gagal diunggah.");
-      }
-
-      // Batas ukuran 5 MB
-      $maksimalUkuran = 5 * 1024 * 1024;
-
-      if ($file['size'] <= 0 || $file['size'] > $maksimalUkuran) {
-        throw new Exception("Ukuran thumbnail maksimal 5 MB.");
-      }
-
-      // Validasi MIME
-      $finfo = new finfo(FILEINFO_MIME_TYPE);
-      $mime = $finfo->file($file['tmp_name']);
-
-      $allowedTypes = [
-        'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
-        'image/webp' => 'webp'
-      ];
-
-      if (!isset($allowedTypes[$mime])) {
-        throw new Exception(
-          "Format thumbnail harus JPG, PNG, atau WEBP."
-        );
-      }
-
-      // Validasi gambar asli
-      if (getimagesize($file['tmp_name']) === false) {
-        throw new Exception("File yang diunggah bukan gambar valid.");
-      }
-
-      // Pastikan folder upload tersedia
-      if (!is_dir($folderUpload) || !is_writable($folderUpload)) {
-        throw new Exception("Folder uploads tidak tersedia atau tidak dapat ditulis.");
-      }
-
-      // Buat nama file unik
-      $gambarBaru = 'artikel_' .
-        bin2hex(random_bytes(16)) .
-        '.' . $allowedTypes[$mime];
-
-      $lokasiBaru = $folderUpload . $gambarBaru;
-
-      if (!move_uploaded_file($file['tmp_name'], $lokasiBaru)) {
-        throw new Exception("Gagal menyimpan thumbnail baru.");
-      }
+    if (($_FILES['thumbnail']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+      $thumbnailBaru = simpanThumbnail($_FILES['thumbnail'], $folderUpload);
+      $thumbnail = $thumbnailBaru;
     }
 
-    // Update database
-    // media_url lama tetap dipertahankan
-    $update = $koneksi->prepare(
-      "UPDATE artikel SET
-                judul = :judul,
-                slug = :slug,
-                isi_berita = :isi_berita,
-                thumbnail = :thumbnail,
-                kategori_id = :kategori_id
-             WHERE id = :id"
-    );
-
-    $update->execute([
+    // media_url tidak diubah.
+    $koneksi->prepare(
+      "UPDATE artikel
+       SET judul = :judul, slug = :slug, isi_berita = :isi_berita,
+           thumbnail = :thumbnail, kategori_id = :kategori_id
+       WHERE id = :id"
+    )->execute([
       ':judul'       => $judul,
       ':slug'        => $slug,
       ':isi_berita'  => $isi,
-      ':thumbnail'   => $gambarBaru,
-      ':kategori_id' => $kategori_id,
-      ':id'          => $id
+      ':thumbnail'   => $thumbnail,
+      ':kategori_id' => $kategoriId,
+      ':id'          => $id,
     ]);
 
-    // Hapus thumbnail lama setelah update berhasil
-    if (
-      $gambarBaru !== $gambarLama &&
-      !empty($gambarLama)
-    ) {
-
-      $fileLama = $folderUpload . basename($gambarLama);
-
-      if (is_file($fileLama)) {
-        unlink($fileLama);
-      }
+    // Hapus thumbnail lama setelah berhasil diganti.
+    if ($thumbnailBaru !== null) {
+      hapusFileUpload($artikel['thumbnail'], $folderUpload);
     }
 
-    header("Location: " . $artikelUrl . "?pesan=edit");
-    exit;
+    redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'edit']);
   } catch (Throwable $error) {
 
-    error_log(
-      "Gagal memperbarui artikel: " . $error->getMessage()
-    );
+    error_log('Gagal memperbarui artikel: ' . $error->getMessage());
 
-    // Hapus thumbnail baru jika proses gagal
-    if ($lokasiBaru && is_file($lokasiBaru)) {
-      unlink($lokasiBaru);
-    }
+    // Hapus thumbnail baru jika proses gagal.
+    hapusFileUpload($thumbnailBaru, $folderUpload);
 
     $pesan = $error instanceof PDOException
-      ? "Artikel gagal diperbarui. Periksa kembali data artikel."
+      ? 'Artikel gagal diperbarui. Periksa kembali data artikel.'
       : $error->getMessage();
 
-    // Pertahankan input
+    // Pertahankan input pengguna di form.
     $artikel['judul'] = $judul;
     $artikel['isi_berita'] = $isi;
-    $artikel['kategori_id'] = $kategori_id;
+    $artikel['kategori_id'] = $kategoriId;
   }
 }
+
+$pakaiEditor = true; // muat CKEditor di footer
 
 include "../header.php";
 include "../sidebar.php";
@@ -283,10 +152,7 @@ include "../sidebar.php";
         </div>
       <?php endif; ?>
 
-      <form
-        method="POST"
-        enctype="multipart/form-data"
-        id="formArtikel">
+      <form method="POST" enctype="multipart/form-data" id="formArtikel">
 
         <!-- Judul -->
         <div class="admin-form-group">
@@ -393,6 +259,7 @@ include "../sidebar.php";
 
         <!-- Tombol -->
         <div class="admin-form-actions">
+
           <button
             type="submit"
             class="admin-primary-button"
@@ -404,6 +271,7 @@ include "../sidebar.php";
           <a href="index.php" class="admin-secondary-button">
             Batal
           </a>
+
         </div>
 
       </form>
@@ -418,15 +286,21 @@ include "../sidebar.php";
     const preview = document.getElementById('thumbnailPreview');
     const image = document.getElementById('previewImage');
 
+    let previewUrl = null;
+
     input.addEventListener('change', function() {
 
       const file = this.files[0];
 
-      if (!file) {
-        preview.style.display = 'none';
-        image.src = '';
-        return;
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
       }
+
+      preview.style.display = 'none';
+      image.src = '';
+
+      if (!file) return;
 
       const allowedTypes = [
         'image/jpeg',
@@ -437,26 +311,24 @@ include "../sidebar.php";
       if (!allowedTypes.includes(file.type)) {
         alert('Format file harus JPG, PNG, atau WEBP.');
         this.value = '';
-        preview.style.display = 'none';
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size <= 0 || file.size > 5 * 1024 * 1024) {
         alert('Ukuran thumbnail maksimal 5 MB.');
         this.value = '';
-        preview.style.display = 'none';
         return;
       }
 
-      const reader = new FileReader();
+      previewUrl = URL.createObjectURL(file);
+      image.src = previewUrl;
+      preview.style.display = 'block';
+    });
 
-      reader.onload = function(event) {
-        image.src = event.target.result;
-        preview.style.display = 'block';
-      };
-
-      reader.readAsDataURL(file);
-
+    window.addEventListener('beforeunload', function() {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
     });
 
   });

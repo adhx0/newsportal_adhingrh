@@ -1,9 +1,7 @@
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
+<?php if (!empty($pakaiEditor)): ?>
 <!-- CKEditor 5 -->
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
@@ -134,8 +132,6 @@
 
           });
 
-          console.log('CKEditor berhasil diinisialisasi');
-
         })
 
         .catch(error => {
@@ -146,6 +142,7 @@
 
   });
 </script>
+<?php endif; ?>
 
 </body>
 

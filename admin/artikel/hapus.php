@@ -1,104 +1,47 @@
-
 <?php
-session_start();
 
-require_once __DIR__ . '/../../config/base_url.php';
-
-// CEK LOGIN DAN ROLE
-if (
-  !isset($_SESSION['role']) ||
-  !in_array($_SESSION['role'], ['super_admin', 'admin', 'user'], true)
-) {
-  header("Location: " . BASE_URL . "/auth/login.php");
-  exit;
-}
-
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/upload.php';
 require_once __DIR__ . '/../../config/koneksi.php';
 
-// URL HALAMAN ARTIKEL
-$artikelUrl = BASE_URL . '/admin/artikel/index.php';
+wajibLogin();
 
-// LOKASI FOLDER UPLOADS
-$folderUpload = realpath(__DIR__ . '/../../uploads');
+const URL_DAFTAR_ARTIKEL = '/admin/artikel/index.php';
 
-// HANYA MENERIMA REQUEST POST
+// Hanya menerima request POST.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  header("Location: " . $artikelUrl);
-  exit;
+  redirect(URL_DAFTAR_ARTIKEL);
 }
 
-// VALIDASI ID ARTIKEL
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
 if (!$id || $id < 1) {
-  header("Location: " . $artikelUrl . "?pesan=id_tidak_valid");
-  exit;
+  redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'id_tidak_valid']);
 }
 
 try {
-  // AMBIL DATA ARTIKEL
-  $query = $koneksi->prepare(
-    "SELECT thumbnail FROM artikel WHERE id = :id"
-  );
+  $stmt = $koneksi->prepare("SELECT user_id, thumbnail FROM artikel WHERE id = :id");
+  $stmt->execute([':id' => $id]);
+  $artikel = $stmt->fetch();
 
-  $query->execute([
-    ':id' => $id
-  ]);
-
-  $artikel = $query->fetch(PDO::FETCH_ASSOC);
-
-  if (!$artikel) {
-    header("Location: " . $artikelUrl . "?pesan=tidak_ditemukan");
-    exit;
+  // Role "user" hanya boleh menghapus artikel miliknya sendiri.
+  if (
+    !$artikel ||
+    ($_SESSION['role'] === 'user' && (int) $artikel['user_id'] !== (int) ($_SESSION['id'] ?? 0))
+  ) {
+    redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'tidak_ditemukan']);
   }
 
-  // SIMPAN NAMA THUMBNAIL
-  $thumbnail = $artikel['thumbnail'] ?? '';
+  $hapus = $koneksi->prepare("DELETE FROM artikel WHERE id = :id");
+  $hapus->execute([':id' => $id]);
 
-  // HAPUS DATA ARTIKEL
-  $hapus = $koneksi->prepare(
-    "DELETE FROM artikel WHERE id = :id"
-  );
-
-  $hapus->execute([
-    ':id' => $id
-  ]);
-
-  // PASTIKAN DATA BENAR-BENAR TERHAPUS
   if ($hapus->rowCount() > 0) {
-
-    // HAPUS FILE THUMBNAIL
-    if (!empty($thumbnail) && $folderUpload !== false) {
-
-      // Ambil nama file saja
-      $namaFile = basename(str_replace('\\', '/', $thumbnail));
-
-      $lokasiFile = $folderUpload . DIRECTORY_SEPARATOR . $namaFile;
-
-      // Pastikan file berada di dalam folder uploads
-      $realFile = realpath($lokasiFile);
-
-      if (
-        $realFile !== false &&
-        is_file($realFile) &&
-        dirname($realFile) === $folderUpload
-      ) {
-        if (!unlink($realFile)) {
-          error_log("Gagal menghapus thumbnail: " . $realFile);
-        }
-      }
-    }
-
-    header("Location: " . $artikelUrl . "?pesan=hapus");
-    exit;
+    hapusFileUpload($artikel['thumbnail'], __DIR__ . '/../../uploads');
+    redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'hapus']);
   }
 
-  header("Location: " . $artikelUrl . "?pesan=gagal");
-  exit;
+  redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'gagal']);
 } catch (PDOException $e) {
-
-  error_log("Error hapus artikel: " . $e->getMessage());
-
-  header("Location: " . $artikelUrl . "?pesan=gagal");
-  exit;
+  error_log('Error hapus artikel: ' . $e->getMessage());
+  redirect(URL_DAFTAR_ARTIKEL, ['pesan' => 'gagal']);
 }

@@ -1,63 +1,25 @@
-
 <?php
-session_start();
 
-require_once __DIR__ . '/../config/base_url.php';
-
-// Validasi login
-if (!isset($_SESSION['role'])) {
-  header("Location: " . BASE_URL . "/auth/login.php");
-  exit;
-}
-
-// Hanya Super Admin yang boleh menghapus user
-if ($_SESSION['role'] !== 'super_admin') {
-  header("Location: " . BASE_URL . "/admin/dashboard.php");
-  exit;
-}
-
+require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/koneksi.php';
 
-// URL halaman pengelolaan user
-$userUrl = BASE_URL . '/admin/user.php';
+wajibLogin(['super_admin']);
 
-// Ambil ID dari POST
+const URL_USER = '/admin/user.php';
+
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
-if (!$id || $id < 1) {
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
-}
-
-// Mencegah Super Admin menghapus akun sendiri
-if (isset($_SESSION['id']) && (int) $_SESSION['id'] === $id) {
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
+// ID harus valid dan Super Admin tidak boleh menghapus akunnya sendiri.
+if (!$id || $id < 1 || (int) ($_SESSION['id'] ?? 0) === $id) {
+  redirect(URL_USER, ['pesan' => 'gagal']);
 }
 
 try {
+  $query = $koneksi->prepare("DELETE FROM users WHERE id = :id");
+  $query->execute([':id' => $id]);
 
-  $query = $koneksi->prepare(
-    "DELETE FROM users WHERE id = :id"
-  );
-
-  $query->execute([
-    ':id' => $id
-  ]);
-
-  if ($query->rowCount() > 0) {
-    header("Location: " . $userUrl . "?pesan=hapus");
-  } else {
-    header("Location: " . $userUrl . "?pesan=gagal");
-  }
-
-  exit;
+  redirect(URL_USER, ['pesan' => $query->rowCount() > 0 ? 'hapus' : 'gagal']);
 } catch (PDOException $e) {
-
-  error_log(
-    "Gagal menghapus pengguna: " . $e->getMessage()
-  );
-
-  header("Location: " . $userUrl . "?pesan=gagal");
-  exit;
+  error_log('Gagal menghapus pengguna: ' . $e->getMessage());
+  redirect(URL_USER, ['pesan' => 'gagal']);
 }

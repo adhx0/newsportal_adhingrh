@@ -1,67 +1,27 @@
 <?php
-session_start();
 
-require_once __DIR__ . '/../../config/base_url.php';
-
-// Validasi login
-if (!isset($_SESSION['role'])) {
-  header("Location: " . BASE_URL . "/auth/login.php");
-  exit;
-}
-
+require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../config/koneksi.php';
 
-// Fungsi escape output
-function e($value)
-{
-  return htmlspecialchars(
-    (string)($value ?? ''),
-    ENT_QUOTES,
-    'UTF-8'
-  );
-}
+wajibLogin();
 
-// Ambil role dan ID pengguna
 $role = $_SESSION['role'];
 $userId = (int) ($_SESSION['id'] ?? 0);
 
-// Ambil data artikel berdasarkan role
-if ($role === 'user') {
+// Daftar artikel tidak menampilkan isi berita, jadi kolom isi_berita tidak diambil.
+// Role "user" hanya melihat artikel miliknya sendiri.
+$sql = "SELECT artikel.id, artikel.judul, artikel.thumbnail, artikel.tanggal,
+               kategori.nama_kategori, users.nama
+        FROM artikel
+        LEFT JOIN kategori ON artikel.kategori_id = kategori.id
+        LEFT JOIN users ON artikel.user_id = users.id"
+  . ($role === 'user' ? " WHERE artikel.user_id = :user_id" : "")
+  . " ORDER BY artikel.id DESC";
 
-  // User hanya melihat artikel miliknya sendiri
-  $query = $koneksi->prepare(
-    "SELECT artikel.*,
-            kategori.nama_kategori,
-            users.nama
-     FROM artikel
-     LEFT JOIN kategori
-        ON artikel.kategori_id = kategori.id
-     LEFT JOIN users
-        ON artikel.user_id = users.id
-     WHERE artikel.user_id = :user_id
-     ORDER BY artikel.id DESC"
-  );
+$query = $koneksi->prepare($sql);
+$query->execute($role === 'user' ? [':user_id' => $userId] : []);
 
-  $query->execute([
-    ':user_id' => $userId
-  ]);
-} else {
-
-  // Admin dan Super Admin melihat seluruh artikel
-  $query = $koneksi->query(
-    "SELECT artikel.*,
-            kategori.nama_kategori,
-            users.nama
-     FROM artikel
-     LEFT JOIN kategori
-        ON artikel.kategori_id = kategori.id
-     LEFT JOIN users
-        ON artikel.user_id = users.id
-     ORDER BY artikel.id DESC"
-  );
-}
-
-$artikels = $query->fetchAll(PDO::FETCH_ASSOC);
+$artikels = $query->fetchAll();
 $totalArtikel = count($artikels);
 
 include "../header.php";
@@ -194,7 +154,9 @@ include "../sidebar.php";
 
                 <td>
                   <span class="article-date-cell">
-                    <?= e($row['tanggal']); ?>
+                    <?= !empty($row['tanggal'])
+                      ? e(date('d F Y, H:i', strtotime($row['tanggal'])))
+                      : '-'; ?>
                   </span>
                 </td>
 
