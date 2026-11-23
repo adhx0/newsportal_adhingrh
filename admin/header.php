@@ -32,8 +32,12 @@ require_once __DIR__ . '/../includes/helpers.php';
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
-  <!-- Custom CSS (versi otomatis dari waktu modifikasi file) -->
+  <!-- Custom CSS -->
   <link href="<?= assetUrl('assets/css/style.css') ?>" rel="stylesheet">
+  <link href="<?= assetUrl('assets/css/dark-mode.css') ?>" rel="stylesheet">
+
+  <!-- Theme Switcher -->
+  <script src="<?= assetUrl('assets/js/theme.js') ?>" defer></script>
 </head>
 
 <body>

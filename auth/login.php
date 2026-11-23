@@ -101,6 +101,25 @@ if (isset($_POST['login'])) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=2">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/dark-mode.css?v=1">
+
+  <!-- Theme Switcher -->
+  <script src="<?= BASE_URL ?>/assets/js/theme.js?v=1" defer></script>
+
+  <!-- Terapkan tema sebelum halaman ditampilkan -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('newsportal-theme');
+        document.documentElement.setAttribute(
+          'data-theme',
+          savedTheme === 'dark' ? 'dark' : 'light'
+        );
+      } catch (error) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 
 </head>
 
@@ -227,6 +246,7 @@ if (isset($_POST['login'])) {
 
   </main>
 
+  <!-- Toggle Password -->
   <script>
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');

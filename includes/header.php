@@ -15,8 +15,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-  <!-- Custom CSS (versi otomatis dari waktu modifikasi file) -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="<?= assetUrl('assets/css/style.css') ?>">
+  <link rel="stylesheet" href="<?= assetUrl('assets/css/dark-mode.css') ?>">
+
+  <!-- Theme Switcher -->
+  <script src="<?= assetUrl('assets/js/theme.js') ?>" defer></script>
 </head>
 
 <body>
